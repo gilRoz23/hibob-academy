@@ -43,6 +43,9 @@ dependencies {
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 }
 
 
