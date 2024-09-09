@@ -13,7 +13,10 @@ class SessionService {
 
 
 // Generate a secure key for HS256
-    private val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+companion object {
+    val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+}
+
 
     fun createJwtToken(jwtDet : JWTDetails): String {
         val now = Date()
