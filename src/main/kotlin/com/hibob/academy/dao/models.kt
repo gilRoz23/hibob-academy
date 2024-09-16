@@ -18,3 +18,15 @@ data class OwnerData(
     val companyId: Long,
     val employeeId: String
 )
+
+data class VaccineData(
+    val id: Long,
+    val name: String
+)
+
+data class VaccineToPet
+    (
+            val id: Long,
+            val petId: Int,
+            val vaccintionDate: LocalDate
+            )
