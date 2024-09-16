@@ -1,6 +1,5 @@
 package com.hibob.academy.service
 
-import com.hibob.academy.dao.OwnerData
 import com.hibob.academy.dao.PetDao
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
