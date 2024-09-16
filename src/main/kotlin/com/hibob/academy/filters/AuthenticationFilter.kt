@@ -25,24 +25,24 @@ class AuthenticationFilter(
         if (requestContext.uriInfo.path == "api/gilad/session/login")
             return
 
-            val cookies = requestContext.cookies
-            val cookieVal = cookies[SessionResource.COOKIE_NAME]?.value.toString()
+        val cookies = requestContext.cookies
+        val cookieVal = cookies[SessionResource.COOKIE_NAME]?.value.toString()
 
-        val retVal: Jws<Claims>? = verify(cookieVal)
-
-            if (retVal == null) {
-                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
-            }
+        try {
+            verify(cookieVal)
+        } catch (e: Exception) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
+        }
 
     }
 
-    fun verify(cookie: String?): Jws<Claims>? {
-        return try {
-            cookie?.let {
+    fun verify(cookie: String?) {
+        cookie?.let {
+            try {
                 Jwts.parser().setSigningKey(SessionService.key).parseClaimsJws(it)
+            } catch (e: Exception) {
+                throw Exception("Invalid token")
             }
-        } catch (e: Exception) {
-            null
-        }
+        } ?: throw Exception("Missing token")
     }
 }

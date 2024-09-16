@@ -25,7 +25,7 @@ class SessionResource(private val sessionService: SessionService) {
     @Path("/login")
     fun createJwtToken(jwtDet: JWTDetails): Response {
         val token = sessionService.createJwtToken(jwtDet)
-        return Response.ok().cookie(NewCookie(COOKIE_NAME, token)).build()
+        return Response.ok().cookie(NewCookie.Builder(COOKIE_NAME).value(token).build()).build()
     }
 
     @GET
