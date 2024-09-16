@@ -65,9 +65,9 @@ fun ex5() {
 }
 
 
-public fun main() {
-//    ex1()
-//    ex3()
-//    ex4()
-    ex5()
-}
+//public fun main() {
+////    ex1()
+////    ex3()
+////    ex4()
+//    ex5()
+//}

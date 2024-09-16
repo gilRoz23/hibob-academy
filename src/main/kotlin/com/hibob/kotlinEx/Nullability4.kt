@@ -11,16 +11,16 @@ package com.hibob.bootcamp
 data class Address(val city: String?, val street: String?)
 data class Employee(val name: String?, val address: Address?)
 
-fun main() {
-    val employees = listOf(
-        Employee("John", Address("New York", "Fifth Ave")),
-        Employee("Jane", null),
-        Employee(null, Address(null, "Unknown Street")),
-        Employee("Alice", Address("Los Angeles", null))
-    )
-
-    employees.map { employee: Employee -> employee?.address?.city?.let { println(it) }?:println("City Unknown")}
-
-    // Task: Print each employee's city safely. If the city is not available, print "City Unknown".
-}
-
+//fun main() {
+//    val employees = listOf(
+//        Employee("John", Address("New York", "Fifth Ave")),
+//        Employee("Jane", null),
+//        Employee(null, Address(null, "Unknown Street")),
+//        Employee("Alice", Address("Los Angeles", null))
+//    )
+//
+//    employees.map { employee: Employee -> employee?.address?.city?.let { println(it) }?:println("City Unknown")}
+//
+//    // Task: Print each employee's city safely. If the city is not available, print "City Unknown".
+//}
+//

@@ -16,10 +16,10 @@ fun String?.nullSafeToUpper() : String? {
     } ?: return "NO TEXT PROVIDED"
 }
 
-fun main() {
-    val text: String? = "Learn Kotlin"
-    val nullText: String? = null
-    println(text.nullSafeToUpper())
-    println(nullText.nullSafeToUpper())
-}
-
+//fun main() {
+//    val text: String? = "Learn Kotlin"
+//    val nullText: String? = null
+//    println(text.nullSafeToUpper())
+//    println(nullText.nullSafeToUpper())
+//}
+//
