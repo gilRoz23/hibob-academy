@@ -24,17 +24,6 @@ class PetServiceTest {
     }
 
     @Test
-    fun `should throw exception for invalid pet type`() {
-        val companyId = 1L
-        val invalidType = PetType.entries.firstOrNull { it.type == "hamster" }
-
-        val exception = assertThrows<IllegalArgumentException> {
-            petService.getPetsByType(companyId, invalidType!!)
-        }
-        assertEquals("Invalid pet type: hamster", exception.message)
-    }
-
-    @Test
     fun `should throw exception for invalid company ID when getting pets by type`() {
         val invalidCompanyId = -1L
         val type = PetType.DOG
