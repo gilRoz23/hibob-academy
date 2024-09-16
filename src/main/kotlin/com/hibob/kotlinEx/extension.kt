@@ -14,10 +14,10 @@ infix fun Number.toPowerOf(exponent: Number): Double {
 }
 
 
-fun main(args: Array<String>) {
-
-    val sum = listOf(1, 2, 3).sum()
-    val x: Number = 2
-    println(sum)
-    println(x.toPowerOf(2))
-}
+//fun main(args: Array<String>) {
+//
+//    val sum = listOf(1, 2, 3).sum()
+//    val x: Number = 2
+//    println(sum)
+//    println(x.toPowerOf(2))
+//}
