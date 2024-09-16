@@ -18,8 +18,9 @@ class AuthenticationFilter(private val status: HttpCodeStatusMapper) : Container
     @Throws(Nothing::class)
     override fun filter(requestContext: ContainerRequestContext) {
 
-        if (requestContext.uriInfo.path == "api/gilad/session/login") return
-        else {
+        if (requestContext.uriInfo.path == "api/gilad/session/login")
+            return
+
             val cookies = requestContext.cookies
             val cookieVal = cookies.get("cookieVal")?.value.toString()
 
@@ -28,8 +29,6 @@ class AuthenticationFilter(private val status: HttpCodeStatusMapper) : Container
             if (retVal == null) {
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
             }
-
-        }
 
     }
 
