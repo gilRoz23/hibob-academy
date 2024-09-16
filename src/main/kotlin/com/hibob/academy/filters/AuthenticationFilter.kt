@@ -28,21 +28,19 @@ class AuthenticationFilter(
         val cookies = requestContext.cookies
         val cookieVal = cookies[SessionResource.COOKIE_NAME]?.value.toString()
 
+        verify(cookieVal, requestContext)
+    }
+
+    fun verify(cookie: String?, requestContext: ContainerRequestContext) {
+        if (cookie.isNullOrBlank()) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
+            return
+        }
+
         try {
-            verify(cookieVal)
+            Jwts.parser().setSigningKey(SessionService.key).parseClaimsJws(cookie)
         } catch (e: Exception) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
         }
-
-    }
-
-    fun verify(cookie: String?) {
-        cookie?.let {
-            try {
-                Jwts.parser().setSigningKey(SessionService.key).parseClaimsJws(it)
-            } catch (e: Exception) {
-                throw Exception("Invalid token")
-            }
-        } ?: throw Exception("Missing token")
     }
 }
