@@ -1,5 +1,6 @@
 package com.hibob.academy.filters
 
+import com.hibob.academy.service.SessionResource
 import com.hibob.academy.service.SessionService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Component
 
 @Provider
 @Component
-class AuthenticationFilter(private val status: HttpCodeStatusMapper) : ContainerRequestFilter {
+class AuthenticationFilter(
+    private val status: HttpCodeStatusMapper,
+    private val sessionResource: SessionResource
+) : ContainerRequestFilter {
     @Throws(Nothing::class)
     override fun filter(requestContext: ContainerRequestContext) {
 
@@ -22,9 +26,9 @@ class AuthenticationFilter(private val status: HttpCodeStatusMapper) : Container
             return
 
             val cookies = requestContext.cookies
-            val cookieVal = cookies.get("cookieVal")?.value.toString()
+            val cookieVal = cookies[SessionResource.COOKIE_NAME]?.value.toString()
 
-            val retVal: Jws<Claims>? = verify(cookieVal)
+        val retVal: Jws<Claims>? = verify(cookieVal)
 
             if (retVal == null) {
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
@@ -33,12 +37,12 @@ class AuthenticationFilter(private val status: HttpCodeStatusMapper) : Container
     }
 
     fun verify(cookie: String?): Jws<Claims>? {
-        return cookie?.let {
-            try {
+        return try {
+            cookie?.let {
                 Jwts.parser().setSigningKey(SessionService.key).parseClaimsJws(it)
-            } catch (e: Exception) {
-                null
             }
-        } ?: null
+        } catch (e: Exception) {
+            null
+        }
     }
 }

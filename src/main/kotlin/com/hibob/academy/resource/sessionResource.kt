@@ -17,10 +17,15 @@ import org.springframework.stereotype.Controller
 @Consumes(MediaType.APPLICATION_JSON)
 class SessionResource(private val sessionService: SessionService) {
 
+    companion object {
+        const val COOKIE_NAME = "cookieVal"
+    }
+
     @POST
     @Path("/login")
-    fun createJwtToken(jwtDet : JWTDetails): Response {
-        return Response.ok().cookie(NewCookie("cookieVal", sessionService.createJwtToken(jwtDet))).build()
+    fun createJwtToken(jwtDet: JWTDetails): Response {
+        val token = sessionService.createJwtToken(jwtDet)
+        return Response.ok().cookie(NewCookie(COOKIE_NAME, token)).build()
     }
 
     @GET
