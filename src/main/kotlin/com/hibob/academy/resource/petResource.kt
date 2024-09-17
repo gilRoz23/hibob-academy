@@ -1,4 +1,7 @@
 package com.hibob.academy.resource
+import com.hibob.academy.dao.OwnerData
+import com.hibob.academy.dao.PetType
+import com.hibob.academy.service.PetService
 import com.hibob.kotlinEx.Owner
 import com.hibob.kotlinEx.Pet
 import jakarta.ws.rs.*
@@ -12,54 +15,61 @@ import java.sql.Date
 @Path("/api/gilad/pets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class PetResource() {
+class PetResource(private val petService: PetService) {
 
-    //    temporary database simulation
-    private val allPets: MutableList<Pet> = mutableListOf()
-
-    //
     @GET
-    @Path("/{petId}")
-    fun getPet(@PathParam("petId") petId: Int): Response {
-        val pet = allPets.find { pet: Pet -> pet.id == petId }
-        pet?.let {
-            return Response.ok(pet).build()
-        } ?: return Response.status(Response.Status.NOT_FOUND).entity("pet not found").build()
+    @Path("getPetsByType/{companyId}/{petType}")
+    fun getPetsByType(@PathParam("companyId") companyId: Long, @PathParam("petType") petType: PetType): Response {
+        try {
+            val petsList = petService.getPetsByType(companyId, petType)
+            return if (petsList.isEmpty())
+                Response.noContent().build()
+            else
+                Response.ok(petsList).build()
+        }
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
     }
 
+    @GET
+    @Path("getOwnerByPetId/{petId}")
+    fun getOwnerByPetId(@PathParam("petId") petId: Int): Response {
+        try {
+            val owner: OwnerData? = petService.getOwnerByPetId(petId)
+            return if (owner != null) {
+                Response.ok(owner).build()
+            } else {
+                Response.status(Response.Status.NOT_FOUND)
+                    .entity("Owner not found for pet ID: $petId").build()
+            }
+        }
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
+    }
 
     @POST
-    fun postPet(pet: Pet): Response {
-        val firstname : String = pet.name.split(" ").first()
-        val lastname = pet.name.split(" ").drop(1).joinToString(" ")
-        allPets.add(pet.copy(id = pet.id, name = pet.name, firstname = firstname, lastname = lastname ,type = pet.type, companyId = pet.companyId, dateOfArrival = pet.dateOfArrival))
-        return Response.status(Response.Status.CREATED).entity(Response.Status.CREATED).build()
+    @Path("addPet/{companyId}/{name}/{type}")
+    fun addPet(@PathParam("companyId") companyId: Long, @PathParam("name") name: String, @PathParam("type") type: PetType): Response {
+        try {
+            petService.addPet(companyId, name, type)
+            return Response.status(Response.Status.CREATED).entity("Pet added successfully").build()
+        }
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
     }
 
     @PUT
-    @Path("/{petId}")
-    fun putPet(@PathParam("petId") petId: Int, pet: Pet): Response {
-        val index = allPets.indexOfFirst { pet -> pet.id == petId }
-        if (index >= 0) {
-            val petToUpdate = allPets.removeAt(index).copy(id = pet.id, name = pet.name, type = pet.type, companyId = pet.companyId, dateOfArrival = pet.dateOfArrival)
-            allPets.add(petToUpdate)
-            return Response.ok(petToUpdate).build()
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("pet not found").build()
+    @Path("adoptPet/{petId}/{ownerId}")
+    fun adoptPet(@PathParam("petId") petId: Int, @PathParam("ownerId") ownerId: Long): Response {
+        try {
+            petService.adoptPet(petId, ownerId)
+            return Response.status(Response.Status.CREATED).entity("Pet adopted successfully").build()
         }
-    }
-
-    @DELETE
-    @Path("/{petId}")
-    fun deletePet(@PathParam("petId") petId: Int, pet: Pet): Response {
-        val index = allPets.indexOfFirst { pet -> pet.id == petId }
-        if (index >= 0) {
-            allPets.removeAt(index)
-            return Response.ok(pet).build()
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("pet with id ${petId} not found").build()
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
     }
 }
-
-//data class ExampleResponse(val data: Example)
