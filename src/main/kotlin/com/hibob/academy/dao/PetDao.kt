@@ -4,6 +4,7 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import org.jooq.Record
 import org.jooq.RecordMapper
+import org.jooq.impl.DSL
 
 enum class PetType(val type: String) {
     DOG("dog"),
@@ -26,6 +27,13 @@ class PetDao(private val sql: DSLContext) {
             record[petTable.type],
             record[petTable.ownerId])
     }
+
+    private val mapper = RecordMapper<Record, Map<String, Int>> { record ->
+        val petType = record[petTable.type]
+        val petCount = record.get("count", Int::class.java)
+        mapOf(petType to petCount)
+    }
+
 
     fun petsByType(companyId: Long, type: PetType) : List<PetData> {
         return sql.select(petTable.id, petTable.companyId, petTable.name, petTable.type, petTable.ownerId)
@@ -58,5 +66,25 @@ class PetDao(private val sql: DSLContext) {
             .on(petTable.ownerId.eq(ownerTable.id))
             .where(petTable.id.eq(petId))
             .fetchOne(ownerDao.ownerMapper)
+    }
+
+//    ***
+//    FROM HERE AND DOWN ADDING TO SQL2. DO NOT TOUCH UPWARD
+
+    fun getPetsByOwnerId(ownerId: Long): List<PetData> {
+        return sql.select(petTable.id, petTable.companyId, petTable.name, petTable.type, petTable.ownerId)
+            .from(petTable)
+            .where(petTable.ownerId.eq(ownerId))
+            .fetch(petMapper)
+    }
+
+    fun countPetsByType(companyId: Long): List<Map<String, Int>> {
+        val countField = DSL.count()
+        return sql.select(petTable.type, countField.`as`("count"))
+            .from(petTable)
+            .where(petTable.companyId.eq(companyId))
+            .groupBy(petTable.type)
+            .orderBy(countField)
+            .fetch(mapper)
     }
 }
