@@ -120,4 +120,53 @@ class PetDaoTest @Autowired constructor(private val sql: DSLContext)  {
         val petsList = petDao.getPetsByOwnerId(giladId)
         assertEquals(listOf(PetData(murphyId, companyId, "Murphy", "dog", giladId), PetData(garfieldId, companyId, "Garfield", "cat", giladId)), petsList)
     }
+
+    // JOOQ-BATCH TESTS
+    @Test
+    fun `adopt multiple pets`() {
+        petDao.insertPet(companyId, "Murphy", "dog")
+        petDao.insertPet(companyId, "Hachiko", "dog")
+        petDao.insertPet(companyId, "Garfield", "cat")
+        ownerDao.insertOwner("Gilad", companyId, "1")
+
+        val murphyId = petDao.petsByType(companyId, PetType.DOG)[0].id
+        val hachikoId = petDao.petsByType(companyId, PetType.DOG)[1].id
+        val garfieldId = petDao.petsByType(companyId, PetType.CAT)[0].id
+        val giladId = ownerDao.getAllOwners(companyId)[0].id
+
+        petDao.adoptMultiplePets(giladId, listOf(murphyId, hachikoId, garfieldId))
+
+        // Verify that the pets have been adopted by Gilad
+        val petsList = petDao.getPetsByOwnerId(giladId)
+        assertEquals(
+            listOf(
+                PetData(murphyId, companyId, "Murphy", "dog", giladId),
+                PetData(hachikoId, companyId, "Hachiko", "dog", giladId),
+                PetData(garfieldId, companyId, "Garfield", "cat", giladId)
+            ),
+            petsList
+        )
+    }
+
+    @Test
+    fun `add multiple pets`() {
+        val petsDataList = listOf(
+            PetData(id = 0, companyId = companyId, name = "Murphy", type = "dog", ownerId = null),
+            PetData(id = 0, companyId = companyId, name = "Hachiko", type = "dog", ownerId = null),
+            PetData(id = 0, companyId = companyId, name = "Garfield", type = "cat", ownerId = null)
+        )
+        petDao.addMultiplePets(petsDataList)
+
+        val petsList = petDao.petsByType(companyId, PetType.DOG) + petDao.petsByType(companyId, PetType.CAT)
+
+        assertEquals(3, petsList.size)
+
+        val addedPets = petsDataList.associateBy { it.name }
+        petsList.forEach { pet ->
+            val expectedPet = addedPets[pet.name]
+            assertEquals(expectedPet?.companyId, pet.companyId)
+            assertEquals(expectedPet?.name, pet.name)
+            assertEquals(expectedPet?.type, pet.type)
+        }
+    }
 }
