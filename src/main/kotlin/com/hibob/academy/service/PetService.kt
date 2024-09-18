@@ -45,6 +45,16 @@ class PetService(private val petDao: PetDao) {
         return mapsList
     }
 
+    fun getPetsByOwnerId(ownerId: Long): List<PetData> {
+        validateOwnerId(ownerId)
+        return petDao.getPetsByOwnerId(ownerId)
+    }
+
+    fun countPetsByType(companyId: Long): List<Map<String, Int>> {
+        validateCompanyId(companyId)
+        return petDao.countPetsByType(companyId)
+    }
+
     private fun validatePetType(type: PetType) {
         if (!PetType.entries.map { it.type }.contains(type.type)) {
             throw IllegalArgumentException("Invalid pet type: ${type.type}")
