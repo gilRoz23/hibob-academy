@@ -76,9 +76,22 @@ class PetResource(private val petService: PetService) {
     fun getPetsByOwnerId(@PathParam("ownerId") ownerId: Long): Response {
         try {
             val petsList = petService.getPetsByOwnerId(ownerId)
+            return Response.ok(petsList).build()
+        }
+        catch (e: NoContentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
         catch (e: IllegalArgumentException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
+    }
+
+    @GET
+    @Path("countPetsByType/{companyId}")
+    fun countPetsByType(@PathParam("companyId") companyId: Long): Response {
+        try {
+
+        }
+        catch (e: NoContentException) {}
     }
 }
