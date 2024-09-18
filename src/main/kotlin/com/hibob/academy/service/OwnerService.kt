@@ -5,6 +5,7 @@ import com.hibob.academy.dao.ExampleDao
 import com.hibob.academy.dao.OwnerDao
 import com.hibob.academy.dao.OwnerData
 import com.hibob.kotlinEx.Owner
+import jakarta.ws.rs.core.NoContentException
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,7 +15,13 @@ class OwnerService(private val ownerDao: OwnerDao) {
         if (companyId <= 0) {
             throw IllegalArgumentException("Company ID must be greater than 0")
         }
-        return ownerDao.getAllOwners(companyId)
+
+        val ownersList = ownerDao.getAllOwners(companyId)
+        if (ownersList.isEmpty()) {
+            throw NoContentException("No owners found for company ID: $companyId")
+        }
+
+        return ownersList
     }
 
     fun addOwner(name: String, companyId: Long, employeeId: String) {
