@@ -28,7 +28,7 @@ class PetDao(private val sql: DSLContext) {
             record[petTable.ownerId])
     }
 
-    private val mapper = RecordMapper<Record, Map<String, Int>> { record ->
+    private val typesMapper = RecordMapper<Record, Map<String, Int>> { record ->
         val petType = record[petTable.type]
         val petCount = record.get("count", Int::class.java)
         mapOf(petType to petCount)
@@ -85,6 +85,6 @@ class PetDao(private val sql: DSLContext) {
             .where(petTable.companyId.eq(companyId))
             .groupBy(petTable.type)
             .orderBy(countField)
-            .fetch(mapper)
+            .fetch(typesMapper)
     }
 }
