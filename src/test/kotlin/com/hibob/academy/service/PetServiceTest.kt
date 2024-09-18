@@ -141,4 +141,56 @@ class PetServiceTest {
         assertEquals(owner, result)
         verify(petDao).getOwnerByPetId(petId)
     }
+
+//    TESTS ADDING TO SQL2-SERVICE FUNCTIONS
+@Test
+fun `should throw exception for invalid owner ID when getting pets by owner`() {
+    val invalidOwnerId = -1L
+    val exception = assertThrows<IllegalArgumentException> {
+        petService.getPetsByOwnerId(invalidOwnerId)
+    }
+
+    assertEquals("Owner ID must be greater than 0", exception.message)
+}
+
+    @Test
+    fun `should get pets by owner ID successfully`() {
+        val ownerId = 1L
+        val pets = listOf(
+            PetData(1, 1L, "Murphy", "dog", ownerId),
+            PetData(2, 1L, "Garfield", "cat", ownerId)
+        )
+
+        whenever(petDao.getPetsByOwnerId(ownerId)).thenReturn(pets)
+        val result = petService.getPetsByOwnerId(ownerId)
+        assertEquals(pets, result)
+        verify(petDao).getPetsByOwnerId(ownerId)
+    }
+
+    @Test
+    fun `should throw exception for invalid company ID when counting pets by type`() {
+        val invalidCompanyId = -1L
+
+        val exception = assertThrows<IllegalArgumentException> {
+            petService.countPetsByType(invalidCompanyId)
+        }
+
+        assertEquals("Company ID must be greater than 0", exception.message)
+    }
+
+    @Test
+    fun `should count pets by type successfully`() {
+        val companyId = 1L
+        val petCounts = listOf(
+            mapOf("dog" to 5),
+            mapOf("cat" to 3)
+        )
+
+        whenever(petDao.countPetsByType(companyId)).thenReturn(petCounts)
+
+        val result = petService.countPetsByType(companyId)
+
+        assertEquals(petCounts, result)
+        verify(petDao).countPetsByType(companyId)
+    }
 }
