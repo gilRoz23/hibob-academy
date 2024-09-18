@@ -48,7 +48,11 @@ class PetService(private val petDao: PetDao) {
 
     fun countPetsByType(companyId: Long): List<Map<String, Int>> {
         validateCompanyId(companyId)
-        return petDao.countPetsByType(companyId)
+        val mapsList = petDao.countPetsByType(companyId)
+        if (mapsList.isEmpty()) {
+            throw NoContentException("No pets found for companyId: $companyId")
+        }
+        return mapsList
     }
 
     private fun validatePetType(type: PetType) {
