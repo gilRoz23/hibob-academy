@@ -32,15 +32,18 @@ class PetService(private val petDao: PetDao) {
         petDao.adoptPet(petId, ownerId)
     }
 
-    fun getOwnerByPetId(petId: Int): OwnerData? {
+    fun getOwnerByPetId(petId: Int): OwnerData {
         validatePetId(petId)
-        val owner = petDao.getOwnerByPetId(petId) ?: throw NoContentException("Owner not found for pet ID: $petId")
-        return owner
+        return petDao.getOwnerByPetId(petId) ?: throw NoContentException("Owner not found for pet ID: $petId")
     }
 
     fun getPetsByOwnerId(ownerId: Long): List<PetData> {
         validateOwnerId(ownerId)
-        return petDao.getPetsByOwnerId(ownerId)
+        val pets = petDao.getPetsByOwnerId(ownerId)
+        if (pets.isEmpty()) {
+            throw NoContentException("No pets found for owner ID: $ownerId")
+        }
+        return pets
     }
 
     fun countPetsByType(companyId: Long): List<Map<String, Int>> {
