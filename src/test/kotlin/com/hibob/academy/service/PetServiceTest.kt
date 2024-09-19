@@ -193,4 +193,86 @@ fun `should throw exception for invalid owner ID when getting pets by owner`() {
         assertEquals(petCounts, result)
         verify(petDao).countPetsByType(companyId)
     }
+
+    // TESTS JOOQ-BATCH
+    @Test
+    fun `should throw exception for invalid owner ID when adopting multiple pets`() {
+        val invalidOwnerId = -1L
+        val petIds = listOf(1, 2, 3)
+
+        val exception = assertThrows<IllegalArgumentException> {
+            petService.adoptMultiplePets(invalidOwnerId, petIds)
+        }
+
+        assertEquals("Owner ID must be greater than 0", exception.message)
+    }
+
+    @Test
+    fun `should throw exception for invalid pet IDs when adopting multiple pets`() {
+        val ownerId = 1L
+        val invalidPetIds = listOf(-1, 2, 3)
+
+        val exception = assertThrows<IllegalArgumentException> {
+            petService.adoptMultiplePets(ownerId, invalidPetIds)
+        }
+
+        assertEquals("Pet ID must be greater than 0", exception.message)
+    }
+
+    @Test
+    fun `should adopt multiple pets successfully`() {
+        val ownerId = 1L
+        val petIds = listOf(1, 2, 3)
+
+        doNothing().whenever(petDao).adoptMultiplePets(ownerId, petIds)
+
+        assertDoesNotThrow {
+            petService.adoptMultiplePets(ownerId, petIds)
+        }
+        verify(petDao).adoptMultiplePets(ownerId, petIds)
+    }
+
+    @Test
+    fun `should throw exception for invalid company ID when adding multiple pets`() {
+        val invalidCompanyId = -1L
+        val petsDataList = listOf(
+            PetData(1, invalidCompanyId, "Murphy", "dog", null),
+            PetData(2, invalidCompanyId, "Garfield", "cat", null)
+        )
+
+        val exception = assertThrows<IllegalArgumentException> {
+            petService.addMultiplePets(petsDataList)
+        }
+
+        assertEquals("Company ID must be greater than 0", exception.message)
+    }
+
+    @Test
+    fun `should throw exception for blank pet name when adding multiple pets`() {
+        val petsDataList = listOf(
+            PetData(1, 1L, "", "dog", null),
+            PetData(2, 1L, "Garfield", "cat", null)
+        )
+
+        val exception = assertThrows<IllegalArgumentException> {
+            petService.addMultiplePets(petsDataList)
+        }
+
+        assertEquals("Name cannot be blank", exception.message)
+    }
+
+    @Test
+    fun `should add multiple pets successfully`() {
+        val petsDataList = listOf(
+            PetData(1, 1L, "Murphy", "dog", null),
+            PetData(2, 1L, "Garfield", "cat", null)
+        )
+
+        doNothing().whenever(petDao).addMultiplePets(petsDataList)
+
+        assertDoesNotThrow {
+            petService.addMultiplePets(petsDataList)
+        }
+        verify(petDao).addMultiplePets(petsDataList)
+    }
 }
