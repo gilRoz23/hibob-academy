@@ -14,12 +14,12 @@ class OwnerDaoTest @Autowired constructor(private val sql: DSLContext)  {
 
     private val dao = OwnerDao(sql)
     val companyId = Random.nextLong()
-    val table = OwnerTable.instance
 
     @BeforeEach
     @AfterEach
     fun cleanup() {
-        sql.deleteFrom(table).where(table.companyId.eq(companyId)).execute()
+        val allOwners = dao.getAllRecords()
+        allOwners.forEach { owner -> dao.deleteOwnerById(owner.id) }
     }
 
     @Test

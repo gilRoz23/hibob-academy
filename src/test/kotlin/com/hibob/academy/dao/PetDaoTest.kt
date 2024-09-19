@@ -15,14 +15,15 @@ class PetDaoTest @Autowired constructor(private val sql: DSLContext)  {
     private val ownerDao = OwnerDao(sql)
     private val petDao = PetDao(sql)
     val companyId = Random.nextLong()
-    val table = PetTable.instance
-    val ownerTable = OwnerTable.instance
 
     @BeforeEach
     @AfterEach
     fun cleanup() {
-        sql.deleteFrom(table).where(table.companyId.eq(companyId)).execute()
-        sql.deleteFrom(ownerTable).where(ownerTable.companyId.eq(companyId)).execute()
+        val allPets = petDao.getAllRecords()
+        allPets.forEach { pet -> petDao.deletePetById(pet.id) }
+
+        val allOwners = ownerDao.getAllRecords()
+        allOwners.forEach { owner -> ownerDao.deleteOwnerById(owner.id) }
     }
 
     @Test

@@ -87,4 +87,16 @@ class PetDao(private val sql: DSLContext) {
             .orderBy(countField)
             .fetch(typesMapper)
     }
+
+    fun deletePetById(petId: Int) {
+        sql.deleteFrom(petTable)
+            .where(petTable.id.eq(petId))
+            .execute()
+    }
+
+    fun getAllRecords(): List<PetData> {
+        return sql.select(petTable.id, petTable.companyId, petTable.name, petTable.type, petTable.ownerId)
+            .from(petTable)
+            .fetch(petMapper)
+    }
 }
