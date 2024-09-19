@@ -1,11 +1,7 @@
 package com.hibob.academy.service
 
-import com.hibob.academy.dao.Example
-import com.hibob.academy.dao.ExampleDao
 import com.hibob.academy.dao.OwnerDao
 import com.hibob.academy.dao.OwnerData
-import com.hibob.kotlinEx.Owner
-import jakarta.ws.rs.core.NoContentException
 import org.springframework.stereotype.Component
 
 @Component
