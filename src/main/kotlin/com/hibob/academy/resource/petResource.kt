@@ -20,7 +20,7 @@ import java.sql.Date
 class PetResource(private val petService: PetService) {
 
     @GET
-    @Path("/companyID/{companyId}/type/{petType}")
+    @Path("/get-by-type/companyID/{companyId}/type/{petType}")
     fun getPetsByType(@PathParam("companyId") companyId: Long, @PathParam("petType") petType: PetType): Response {
         return try {
             val petsList = petService.getPetsByType(companyId, petType)
@@ -33,7 +33,7 @@ class PetResource(private val petService: PetService) {
     }
 
     @GET
-    @Path("/{petId}")
+    @Path("/get-owner-by-petID/{petId}")
     fun getOwnerByPetId(@PathParam("petId") petId: Int): Response {
         return try {
             val owner = petService.getOwnerByPetId(petId)
@@ -61,7 +61,7 @@ class PetResource(private val petService: PetService) {
     }
 
     @PUT
-    @Path("adopt-pet/petID/{petId}/ownerID/{ownerId}")
+    @Path("/adopt-pet/petID/{petId}/ownerID/{ownerId}")
     fun adoptPet(@PathParam("petId") petId: Int, @PathParam("ownerId") ownerId: Long): Response {
         return try {
             petService.adoptPet(petId, ownerId)
