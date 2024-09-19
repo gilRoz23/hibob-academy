@@ -157,7 +157,7 @@ class PetDaoTest @Autowired constructor(private val sql: DSLContext)  {
         )
         petDao.addMultiplePets(petsDataList)
 
-        val petsList = petDao.petsByType(companyId, PetType.DOG) + petDao.petsByType(companyId, PetType.CAT)
+        val petsList = petDao.getAllRecords()
 
         assertEquals(3, petsList.size)
 
