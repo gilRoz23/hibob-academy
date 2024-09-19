@@ -35,4 +35,20 @@ class OwnerDao(private val sql: DSLContext) {
         .doNothing()
         .execute()
     }
+
+    //    ***
+//    FROM HERE AND DOWN ADDING TO SQL2. DO NOT TOUCH UPWARD
+
+    fun deleteOwnerById(ownerId: Long): Int {
+        return sql.deleteFrom(table)
+            .where(table.id.eq(ownerId))
+            .execute()
+    }
+
+    fun getAllRecords(): List<OwnerData> {
+        return sql.select(table.id, table.name, table.companyId, table.employeeId)
+            .from(table)
+            .fetch(ownerMapper)
+    }
+
 }

@@ -15,12 +15,15 @@ class PetDaoTest @Autowired constructor(private val sql: DSLContext)  {
     private val ownerDao = OwnerDao(sql)
     private val petDao = PetDao(sql)
     val companyId = Random.nextLong()
-    val table = PetTable.instance
 
     @BeforeEach
     @AfterEach
     fun cleanup() {
-        sql.deleteFrom(table).where(table.companyId.eq(companyId)).execute()
+        val allPets = petDao.getAllRecords()
+        allPets.forEach { pet -> petDao.deletePetById(pet.id) }
+
+        val allOwners = ownerDao.getAllRecords()
+        allOwners.forEach { owner -> ownerDao.deleteOwnerById(owner.id) }
     }
 
     @Test
@@ -78,5 +81,43 @@ class PetDaoTest @Autowired constructor(private val sql: DSLContext)  {
         val pet = petDao.petsByType(companyId, PetType.DOG)[0]
         val owner = petDao.getOwnerByPetId(pet.id)
         assertEquals(null, owner)
+    }
+
+//    FROM HERE TESTS ADDED TO SQL2. DO NOT TOUCH UPWARD
+    @Test
+    fun `count pets by type`(){
+        petDao.insertPet(companyId, "Murphy", "dog")
+        petDao.insertPet(companyId, "Hachiko", "dog")
+        petDao.insertPet(companyId, "Kliford", "dog")
+        petDao.insertPet(companyId, "Garfield", "cat")
+        petDao.insertPet(companyId, "Tom", "cat")
+        val typesList = petDao.countPetsByType(companyId)
+        assertEquals(listOf(mapOf("cat" to 2), mapOf("dog" to 3)), typesList)
+    }
+
+    @Test
+    fun `count pets by type with zero pets`(){
+        val typesList = petDao.countPetsByType(companyId)
+        val blankList: List<Map<String, Int>> = emptyList()
+        assertEquals(blankList, typesList)
+    }
+
+    @Test
+    fun `get pets by owner Id`(){
+        petDao.insertPet(companyId, "Murphy", "dog")
+        petDao.insertPet(companyId, "Garfield", "cat")
+        petDao.insertPet(companyId, "Tom", "cat")
+        ownerDao.insertOwner("Gilad", companyId, "1")
+        ownerDao.insertOwner("Bob", companyId, "2")
+        val murphyId = petDao.petsByType(companyId, PetType.DOG)[0].id
+        val garfieldId = petDao.petsByType(companyId, PetType.CAT)[0].id
+        val tomId = petDao.petsByType(companyId, PetType.CAT)[1].id
+        val giladId = ownerDao.getAllOwners(companyId)[0].id
+        val bobId = ownerDao.getAllOwners(companyId)[1].id
+        petDao.adoptPet(murphyId,giladId)
+        petDao.adoptPet(garfieldId,giladId)
+        petDao.adoptPet(tomId,bobId)
+        val petsList = petDao.getPetsByOwnerId(giladId)
+        assertEquals(listOf(PetData(murphyId, companyId, "Murphy", "dog", giladId), PetData(garfieldId, companyId, "Garfield", "cat", giladId)), petsList)
     }
 }
