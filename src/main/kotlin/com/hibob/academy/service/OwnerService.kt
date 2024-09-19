@@ -15,12 +15,7 @@ class OwnerService(private val ownerDao: OwnerDao) {
         if (companyId <= 0) {
             throw IllegalArgumentException("Company ID must be greater than 0")
         }
-
         val ownersList = ownerDao.getAllOwners(companyId)
-        if (ownersList.isEmpty()) {
-            throw NoContentException("No owners found for company ID: $companyId")
-        }
-
         return ownersList
     }
 
@@ -32,7 +27,6 @@ class OwnerService(private val ownerDao: OwnerDao) {
             throw IllegalArgumentException("Invalid Company ID")
         }
 
-        // Call the DAO to insert the owner
         ownerDao.insertOwner(name, companyId, employeeId)
     }
 }
