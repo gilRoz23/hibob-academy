@@ -16,7 +16,7 @@ import org.springframework.stereotype.Controller
 class OwnerResource(private val ownerService: OwnerService) {
 
     @GET
-    @Path("getOwnersByCompany/{companyId}")
+    @Path("/{companyId}")
     fun getOwnersByCompany(@PathParam("companyId") companyId: Long): Response {
         return try {
             val ownersList = ownerService.getOwnersByCompany(companyId)
@@ -29,7 +29,7 @@ class OwnerResource(private val ownerService: OwnerService) {
     }
 
     @POST
-    @Path("addOwner/{name}/{companyId}/{employeeId}")
+    @Path("/name/{name}/companyID/{companyId}/employeeID/{employeeId}")
     fun addOwner(
         @PathParam("name") name: String,
         @PathParam("companyId") companyId: Long,

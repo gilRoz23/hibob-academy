@@ -20,7 +20,7 @@ import java.sql.Date
 class PetResource(private val petService: PetService) {
 
     @GET
-    @Path("getPetsByType/{companyId}/{petType}")
+    @Path("/companyID/{companyId}/type/{petType}")
     fun getPetsByType(@PathParam("companyId") companyId: Long, @PathParam("petType") petType: PetType): Response {
         return try {
             val petsList = petService.getPetsByType(companyId, petType)
@@ -33,7 +33,7 @@ class PetResource(private val petService: PetService) {
     }
 
     @GET
-    @Path("getOwnerByPetId/{petId}")
+    @Path("/{petId}")
     fun getOwnerByPetId(@PathParam("petId") petId: Int): Response {
         return try {
             val owner = petService.getOwnerByPetId(petId)
@@ -46,7 +46,7 @@ class PetResource(private val petService: PetService) {
     }
 
     @POST
-    @Path("addPet/{companyId}/{name}/{type}")
+    @Path("/companyID/{companyId}/name/{name}/type/{type}")
     fun addPet(
         @PathParam("companyId") companyId: Long,
         @PathParam("name") name: String,
@@ -61,7 +61,7 @@ class PetResource(private val petService: PetService) {
     }
 
     @PUT
-    @Path("adoptPet/{petId}/{ownerId}")
+    @Path("adopt-pet/petID/{petId}/ownerID/{ownerId}")
     fun adoptPet(@PathParam("petId") petId: Int, @PathParam("ownerId") ownerId: Long): Response {
         return try {
             petService.adoptPet(petId, ownerId)
