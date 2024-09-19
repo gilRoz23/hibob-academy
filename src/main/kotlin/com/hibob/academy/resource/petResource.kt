@@ -88,8 +88,9 @@ class PetResource(private val petService: PetService) {
 
     //JOOQ-BATCH
     @PUT
-    @Path("/adopt-multiple/ownerID/{ownerId}/petIds-list{petsIdsList}")
-    fun adoptMultiplePets(@PathParam("ownerId") ownerId: Long ,@PathParam("petsIdsList") petsList: List<Int>): Response {
+    @Path("/adopt-multiple/ownerId/{ownerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun adoptMultiplePets(@PathParam("ownerId") ownerId: Long, petsList: List<Int>): Response {
         try {
             petService.adoptMultiplePets(ownerId, petsList)
             return Response.status(Response.Status.CREATED).entity("Pets adopted successfully").build()
@@ -100,8 +101,9 @@ class PetResource(private val petService: PetService) {
     }
 
     @POST
-    @Path("/add-multiple/pets-list/{petsList}")
-    fun addMultiplePets(@PathParam("petsList") petsList: List<PetData>): Response {
+    @Path("/multiple")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun addMultiplePets(petsList: List<PetData>): Response {
         return try {
             petService.addMultiplePets(petsList)
             Response.status(Response.Status.CREATED).entity("Pets added successfully").build()
@@ -109,4 +111,5 @@ class PetResource(private val petService: PetService) {
             Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
     }
+
 }
