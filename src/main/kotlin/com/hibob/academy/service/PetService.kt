@@ -35,18 +35,6 @@ class PetService(private val petDao: PetDao) {
 
     fun getPetsByOwnerId(ownerId: Long): List<PetData> {
         validateOwnerId(ownerId)
-        val pets = petDao.getPetsByOwnerId(ownerId)
-        return pets
-    }
-
-    fun countPetsByType(companyId: Long): List<Map<String, Int>> {
-        validateCompanyId(companyId)
-        val mapsList = petDao.countPetsByType(companyId)
-        return mapsList
-    }
-
-    fun getPetsByOwnerId(ownerId: Long): List<PetData> {
-        validateOwnerId(ownerId)
         return petDao.getPetsByOwnerId(ownerId)
     }
 

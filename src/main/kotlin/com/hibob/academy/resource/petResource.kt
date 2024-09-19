@@ -1,17 +1,11 @@
 package com.hibob.academy.resource
 
-import com.hibob.academy.dao.OwnerData
 import com.hibob.academy.dao.PetType
 import com.hibob.academy.service.PetService
-import com.hibob.kotlinEx.Owner
-import com.hibob.kotlinEx.Pet
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.NoContentException
 import jakarta.ws.rs.core.Response
 import org.springframework.stereotype.Controller
-import java.sql.Date
-
 
 @Controller
 @Path("/api/gilad/pets")
@@ -27,8 +21,6 @@ class PetResource(private val petService: PetService) {
             Response.ok(petsList).build()
         } catch (e: IllegalArgumentException) {
             Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
-        } catch (e: NoContentException) {
-            Response.noContent().build()
         }
     }
 
@@ -40,8 +32,6 @@ class PetResource(private val petService: PetService) {
             Response.ok(owner).build()
         } catch (e: IllegalArgumentException) {
             Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
-        } catch (e: NoContentException) {
-            Response.status(Response.Status.NOT_FOUND).entity(e.message).build()
         }
     }
 
@@ -72,14 +62,11 @@ class PetResource(private val petService: PetService) {
     }
 
     @GET
-    @Path("getPetsByOwnerId/{ownerId}")
+    @Path("ownerID/{ownerId}")
     fun getPetsByOwnerId(@PathParam("ownerId") ownerId: Long): Response {
         try {
             val petsList = petService.getPetsByOwnerId(ownerId)
             return Response.ok(petsList).build()
-        }
-        catch (e: NoContentException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
         catch (e: IllegalArgumentException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
@@ -87,14 +74,11 @@ class PetResource(private val petService: PetService) {
     }
 
     @GET
-    @Path("countPetsByType/{companyId}")
+    @Path("count-by-type/{companyId}")
     fun countPetsByType(@PathParam("companyId") companyId: Long): Response {
         try {
             val mapsList = petService.countPetsByType(companyId)
             return Response.ok(mapsList).build()
-        }
-        catch (e: NoContentException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
         catch (e: IllegalArgumentException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
