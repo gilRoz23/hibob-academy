@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 import org.jooq.Record
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL
+import com.hibob.academy.dao.PetData
 
 enum class PetType(val type: String) {
     DOG("dog"),
@@ -98,5 +99,22 @@ class PetDao(private val sql: DSLContext) {
         return sql.select(petTable.id, petTable.companyId, petTable.name, petTable.type, petTable.ownerId)
             .from(petTable)
             .fetch(petMapper)
+    }
+
+    // FROM HERE JOOQ BATCH FUNCTIONS
+    fun adoptMultiplePets(ownerId: Long, petIds: List<Int>) {
+        sql.update(petTable)
+            .set(petTable.ownerId, ownerId)
+            .where(petTable.id.`in`(petIds).and(petTable.ownerId.isNull))
+            .execute()
+    }
+
+    fun addMultiplePets(petsDataList: List<PetData>) {
+        val insert = sql.insertInto(petTable)
+            .columns(petTable.companyId, petTable.name, petTable.type)
+            .values(DSL.param(petTable.companyId), DSL.param(petTable.name), DSL.param(petTable.type))
+        val batch = sql.batch(insert)
+        petsDataList.forEach{batch.bind(it.companyId, it.name, it.type)}
+        batch.execute()
     }
 }

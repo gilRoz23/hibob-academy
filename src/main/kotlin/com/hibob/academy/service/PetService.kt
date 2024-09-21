@@ -33,17 +33,34 @@ class PetService(private val petDao: PetDao) {
         return petDao.getOwnerByPetId(petId)
     }
 
-    fun getPetsByOwnerId(ownerId: Long): List<PetData> {
-        validateOwnerId(ownerId)
-        val pets = petDao.getPetsByOwnerId(ownerId)
-        return pets
-    }
-
     fun countPetsByType(companyId: Long): List<Map<String, Int>> {
         validateCompanyId(companyId)
-        val mapsList = petDao.countPetsByType(companyId)
-        return mapsList
+        return petDao.countPetsByType(companyId)
     }
+
+    fun getPetsByOwnerId(ownerId: Long): List<PetData> {
+        validateOwnerId(ownerId)
+        return petDao.getPetsByOwnerId(ownerId)
+    }
+
+    // JOOQ-BATCH FUNCTIONS
+    fun adoptMultiplePets(ownerId: Long, petIds: List<Int>) {
+        validateOwnerId(ownerId)
+        petIds.forEach { validatePetId(it) }
+
+        petDao.adoptMultiplePets(ownerId, petIds)
+    }
+
+    fun addMultiplePets(petsDataList: List<PetData>) {
+        petsDataList.forEach {
+            validateCompanyId(it.companyId)
+            validateName(it.name)
+            validatePetType(PetType.valueOf(it.type.toUpperCase()))
+        }
+
+        petDao.addMultiplePets(petsDataList)
+    }
+    //
 
     private fun validatePetType(type: PetType) {
         if (!PetType.entries.map { it.type }.contains(type.type)) {

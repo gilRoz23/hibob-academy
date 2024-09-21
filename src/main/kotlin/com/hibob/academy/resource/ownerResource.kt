@@ -1,10 +1,8 @@
 package com.hibob.academy.resource
 
 import com.hibob.academy.service.OwnerService
-import com.hibob.kotlinEx.Owner
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.NoContentException
 import jakarta.ws.rs.core.Response
 import org.springframework.stereotype.Controller
 
@@ -23,8 +21,6 @@ class OwnerResource(private val ownerService: OwnerService) {
             Response.ok(ownersList).build()
         } catch (e: IllegalArgumentException) {
             Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
-        } catch (e: NoContentException) {
-            Response.noContent().build()
         }
     }
 
