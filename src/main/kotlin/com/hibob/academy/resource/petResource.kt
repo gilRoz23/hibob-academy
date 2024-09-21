@@ -1,5 +1,6 @@
 package com.hibob.academy.resource
 
+import com.hibob.academy.dao.PetData
 import com.hibob.academy.dao.PetType
 import com.hibob.academy.service.PetService
 import jakarta.ws.rs.*
@@ -84,4 +85,31 @@ class PetResource(private val petService: PetService) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
         }
     }
+
+    //JOOQ-BATCH
+    @PUT
+    @Path("/adopt-multiple/ownerId/{ownerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun adoptMultiplePets(@PathParam("ownerId") ownerId: Long, petsList: List<Int>): Response {
+        try {
+            petService.adoptMultiplePets(ownerId, petsList)
+            return Response.ok().entity("Pets adopted successfully").build();
+        }
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
+    }
+
+    @POST
+    @Path("/multiple")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun addMultiplePets(petsList: List<PetData>): Response {
+        return try {
+            petService.addMultiplePets(petsList)
+            Response.status(Response.Status.CREATED).entity("Pets added successfully").build()
+        } catch (e: IllegalArgumentException) {
+            Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
+    }
+
 }
