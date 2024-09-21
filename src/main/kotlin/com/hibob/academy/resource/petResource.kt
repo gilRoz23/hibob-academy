@@ -93,7 +93,7 @@ class PetResource(private val petService: PetService) {
     fun adoptMultiplePets(@PathParam("ownerId") ownerId: Long, petsList: List<Int>): Response {
         try {
             petService.adoptMultiplePets(ownerId, petsList)
-            return Response.status(Response.Status.CREATED).entity("Pets adopted successfully").build()
+            return return Response.ok().entity("Pets adopted successfully").build();
         }
         catch (e: IllegalArgumentException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
