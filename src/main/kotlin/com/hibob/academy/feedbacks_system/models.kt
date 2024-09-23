@@ -1,4 +1,4 @@
-package com.hibob.academy.feedbacks_system.dao
+package com.hibob.academy.feedbacks_system
 
 import java.time.LocalDateTime
 
@@ -17,7 +17,7 @@ enum class Department {
 
 data class FeedbackData(
     val id: Long,
-    val company_id: Long,
+    val companyId: Long,
     val content: String,
     val isAnonymous: Boolean,
     val status: Boolean,

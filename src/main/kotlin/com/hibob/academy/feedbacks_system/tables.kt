@@ -1,4 +1,4 @@
-package com.hibob.academy.feedbacks_system.dao
+package com.hibob.academy.feedbacks_system
 
 import com.hibob.academy.utils.JooqTable
 
