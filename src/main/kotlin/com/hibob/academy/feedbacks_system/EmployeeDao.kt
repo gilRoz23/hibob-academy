@@ -6,7 +6,7 @@ import org.jooq.Record
 import org.jooq.RecordMapper
 
 @Component
-class PetDao(private val sql: DSLContext) {
+class EmployeeDao(private val sql: DSLContext) {
 
     private val employeeTable = EmployeeTable.instance
 
