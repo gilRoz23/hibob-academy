@@ -19,35 +19,24 @@ class PetDao(private val sql: DSLContext) {
         record[employeeTable.companyId])
     }
 
-    fun getEmployeeId(firstname: String, lastname: String, companyId: Long) : EmployeeData {
+    fun getEmployeeId(firstname: String, lastname: String, companyId: Long) : EmployeeData? {
         return sql.select(employeeTable.firstName, employeeTable.lastName, employeeTable.companyId)
             .from(employeeTable)
             .where(employeeTable.firstName.eq(firstname), employeeTable.lastName.eq(lastname), employeeTable.companyId.eq(companyId))
+            .fetchOne(employeeMapper)
+    }
+
+    fun deleteEmployeeById(id: Long): Int {
+        return sql.deleteFrom(employeeTable)
+            .where(employeeTable.id.eq(id))
+            .execute()
+    }
+
+    fun insertEmployee(firstName: String, lastName: String, role: String, companyId: Long): Long {
+        return sql.insertInto(employeeTable)
+            .columns(employeeTable.firstName, employeeTable.lastName, employeeTable.role, employeeTable.companyId)
+            .values(firstName, lastName, role, companyId)
+            .returning(employeeTable.id)
             .fetchOne()!![employeeTable.id]
-    }
-
-    fun insertPet(companyId: Long, name: String, type: String) {
-        sql.insertInto(petTable)
-            .set(petTable.companyId, companyId)
-            .set(petTable.name, name)
-            .set(petTable.type, type)
-            .execute()
-    }
-
-    fun adoptPet(petId: Int, ownerId: Long) {
-        sql.update(petTable)
-            .set(petTable.ownerId, ownerId)
-            .where(petTable.id.eq(petId).and(petTable.ownerId.isNull)) // Only update if there's no owner
-            .execute()
-    }
-
-    fun getOwnerByPetId(petId: Int): OwnerData? {
-        val ownerDao = OwnerDao(sql)
-        return sql.select(ownerTable.id, ownerTable.name, ownerTable.companyId, ownerTable.employeeId)
-            .from(petTable)
-            .join(ownerTable)
-            .on(petTable.ownerId.eq(ownerTable.id))
-            .where(petTable.id.eq(petId))
-            .fetchOne(ownerDao.ownerMapper)
     }
 }
