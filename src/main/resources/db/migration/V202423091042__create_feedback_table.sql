@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS feedback
     is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
     status BOOLEAN NOT NULL DEFAULT FALSE,
     feedback_provider_id BIGINT,
-    department VARCHAR(255),
+    department VARCHAR(255) NOT NULL,
     time_of_submitting TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_feedback_company_id ON feedback (company_id);
