@@ -20,7 +20,7 @@ class FeedbackDao(private val sql: DSLContext) {
             isAnonymous = record[feedbackTable.isAnonymous],
             status = record[feedbackTable.status],
             feedbackProviderId = record[feedbackTable.feedbackProviderId],
-            department = Department.valueOf(record[feedbackTable.department].uppercase(Locale.getDefault())),
+            department = Department.valueOf(record[feedbackTable.department].uppercase()),
             timeOfSubmitting = record[feedbackTable.timeOfSubmitting]
         )
     }
