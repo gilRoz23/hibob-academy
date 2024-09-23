@@ -1,5 +1,7 @@
-package com.hibob.academy.feedbacks_system
+package com.hibob.academy.feedbacks_system.dao
 
+import com.hibob.academy.feedbacks_system.CompanyData
+import com.hibob.academy.feedbacks_system.CompanyTable
 import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import org.jooq.Record
