@@ -2,9 +2,9 @@ CREATE TABLE IF NOT EXISTS feedback
 (
     id BIGSERIAL PRIMARY KEY,
     company_id BIGINT NOT NULL,
-    content TEXT NOT NULL,
-    is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
-    status BOOLEAN NOT NULL DEFAULT FALSE,
+    feedback TEXT NOT NULL,
+    is_anonymous BOOLEAN NOT NULL,
+    status BOOLEAN NOT NULL,
     feedback_provider_id BIGINT,
     department VARCHAR(255) NOT NULL,
     time_of_submitting TIMESTAMP DEFAULT CURRENT_TIMESTAMP
