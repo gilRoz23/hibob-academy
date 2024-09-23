@@ -1,5 +1,6 @@
 package com.hibob.academy.feedbacks_system
 
+import com.hibob.academy.feedbacks_system.dao.CompanyDao
 import com.hibob.academy.utils.BobDbTest
 import org.jooq.DSLContext
 import org.junit.jupiter.api.Assertions.assertEquals
