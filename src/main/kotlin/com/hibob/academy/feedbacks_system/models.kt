@@ -11,7 +11,8 @@ enum class Department {
     OPERATIONS,
     RESEARCH_AND_DEVELOPMENT,
     CUSTOMER_SERVICE,
-    LEGAL
+    LEGAL,
+    OTHER
 }
 
 
@@ -22,6 +23,6 @@ data class FeedbackData(
     val isAnonymous: Boolean,
     val status: Boolean,
     val feedbackProviderId: Long?,
-    val department: Department?,
+    val department: Department,
     val timeOfSubmitting: LocalDateTime
 )
