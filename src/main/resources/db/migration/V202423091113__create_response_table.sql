@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS response
     id BIGSERIAL PRIMARY KEY,
     company_id BIGINT NOT NULL,
     feedback_id BIGINT NOT NULL,
-    response TEXT NOT NULL,
+    content TEXT NOT NULL,
     responser_id BIGINT,
     time_of_responsing TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

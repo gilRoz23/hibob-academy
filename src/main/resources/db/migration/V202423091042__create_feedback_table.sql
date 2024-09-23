@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS feedback
 (
     id BIGSERIAL PRIMARY KEY,
     company_id BIGINT NOT NULL,
-    feedback TEXT NOT NULL,
+    content TEXT NOT NULL,
     is_anonymous BOOLEAN NOT NULL,
     status BOOLEAN NOT NULL,
     feedback_provider_id BIGINT,
