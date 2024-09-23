@@ -27,6 +27,15 @@ data class FeedbackData(
     val timeOfSubmitting: LocalDateTime
 )
 
+data class EmployeeData(
+    val id: Long,
+    val firstName: String,
+    val lastName: String,
+    val role: String,
+    val companyId: Long
+)
+
+
 data class CompanyData(
     val id: Long,
     val name: String
