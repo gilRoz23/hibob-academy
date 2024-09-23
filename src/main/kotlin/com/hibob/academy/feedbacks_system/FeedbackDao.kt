@@ -10,22 +10,20 @@ import java.util.*
 
 @Component
 class FeedbackDao(private val sql: DSLContext) {
-
     private val feedbackTable = FeedbackTable.instance
 
-    private val feedbackMapper = RecordMapper<org.jooq.Record, FeedbackData> {
-            record ->
-        FeedbackData(record[feedbackTable.id],
-            record[feedbackTable.companyId],
-            record[feedbackTable.content],
-            record[feedbackTable.isAnonymous],
-            record[feedbackTable.status],
-            record[feedbackTable.feedbackProviderId],
+    private val feedbackMapper = RecordMapper<org.jooq.Record, FeedbackData> { record ->
+        FeedbackData(
+            id = record[feedbackTable.id],
+            companyId = record[feedbackTable.companyId],
+            content = record[feedbackTable.content],
+            isAnonymous = record[feedbackTable.isAnonymous],
+            status = record[feedbackTable.status],
+            feedbackProviderId = record[feedbackTable.feedbackProviderId],
             department = Department.valueOf(record[feedbackTable.department].uppercase(Locale.getDefault())),
-            record[feedbackTable.timeOfSubmitting]
-            )
+            timeOfSubmitting = record[feedbackTable.timeOfSubmitting]
+        )
     }
-    //Converting String to Department enum
 
 
     fun insertFeedback(companyId: Long, content: String, isAnonymous: Boolean, feedbackProviderId: Long?, department: Department): Long {
