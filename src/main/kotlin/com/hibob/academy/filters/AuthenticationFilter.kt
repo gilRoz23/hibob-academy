@@ -1,9 +1,7 @@
 package com.hibob.academy.filters
 
-import com.hibob.academy.service.SessionResource
-import com.hibob.academy.service.SessionService
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
+import com.hibob.academy.feedbacks_system.resource.SessionEmployeeResource
+import com.hibob.academy.feedbacks_system.service.SessionService
 import io.jsonwebtoken.Jwts
 import jakarta.ws.rs.container.ContainerRequestContext
 import jakarta.ws.rs.container.ContainerRequestFilter
@@ -17,16 +15,16 @@ import org.springframework.stereotype.Component
 @Component
 class AuthenticationFilter(
     private val status: HttpCodeStatusMapper,
-    private val sessionResource: SessionResource
+    private val sessionEmployeeResource: SessionEmployeeResource
 ) : ContainerRequestFilter {
     @Throws(Nothing::class)
     override fun filter(requestContext: ContainerRequestContext) {
 
-        if (requestContext.uriInfo.path == "api/gilad/session/login")
+        if (requestContext.uriInfo.path == "api/v1/employee-feedback/login")
             return
 
         val cookies = requestContext.cookies
-        val cookieVal = cookies[SessionResource.COOKIE_NAME]?.value.toString()
+        val cookieVal = cookies[SessionEmployeeResource.COOKIE_NAME]?.value.toString()
 
         verify(cookieVal, requestContext)
     }
