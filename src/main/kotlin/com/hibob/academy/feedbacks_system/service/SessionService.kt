@@ -1,5 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
+import com.hibob.academy.feedbacks_system.CompanyDao
+import com.hibob.academy.feedbacks_system.EmployeeDao
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -10,9 +12,7 @@ import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
 
 @Component
-class SessionService {
-
-
+class SessionService(private val companyDao: CompanyDao, private val employeeDao: EmployeeDao) {
     // Generate a secure key for HS256
     companion object {
         val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
@@ -21,6 +21,8 @@ class SessionService {
 
     fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
+        val companyId = companyDao.getCompanyIdByName(jwtDet.companyName)?.id
+        val employeeData = employeeDao.getEmployeeId(jwtDet.firstname, jwtDet.lastname, companyId)
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
             .claim("firstname", jwtDet.firstname)
