@@ -1,4 +1,5 @@
 package com.hibob.academy.feedbacks_system.service
+
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -12,13 +13,13 @@ import javax.crypto.SecretKey
 class SessionService {
 
 
-// Generate a secure key for HS256
-companion object {
-    val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
-}
+    // Generate a secure key for HS256
+    companion object {
+        val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+    }
 
 
-    fun createJwtToken(jwtDet : JWTDetails): String {
+    fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")

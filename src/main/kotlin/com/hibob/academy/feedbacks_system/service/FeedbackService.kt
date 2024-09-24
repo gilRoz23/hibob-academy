@@ -6,7 +6,6 @@ import com.hibob.academy.feedbacks_system.FeedbackDao
 
 @Component
 class FeedbackService(private val feedbackDao: FeedbackDao) {
-
     private val inappropriateWords = listOf("hate", "stupid", "idiot",
         "moron", "crap", "suck", "dumb", "loser",
         "vile", "disgusting", "scum", "hate speech", "abusive",
