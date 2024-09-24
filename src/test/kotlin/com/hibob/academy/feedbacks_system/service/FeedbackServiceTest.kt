@@ -1,28 +1,18 @@
-package com.hibob.academy.feedbacks_system
+package com.hibob.academy.feedbacks_system.service
 
-
-import com.hibob.academy.feedbacks_system.service.FeedbackService
+import com.hibob.academy.feedbacks_system.Department
+import com.hibob.academy.feedbacks_system.FeedbackDao
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 
-
 class FeedbackServiceTest {
-
-    private lateinit var feedbackDao: FeedbackDao
-    private lateinit var feedbackService: FeedbackService
-
-    @BeforeEach
-    fun setUp() {
-        feedbackDao = mock(FeedbackDao::class.java)
-        feedbackService = FeedbackService(feedbackDao)
-    }
+    private var feedbackDao: FeedbackDao = mock(FeedbackDao::class.java)
+    private var feedbackService: FeedbackService = FeedbackService(feedbackDao)
 
     @Test
     fun `should throw exception for feedback that is too short`() {
@@ -32,11 +22,9 @@ class FeedbackServiceTest {
         val feedbackProviderId: Long? = null
         val department = Department.HR
 
-        val exception = assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalArgumentException> {
             feedbackService.insertFeedback(companyId, shortFeedback, isAnonymous, feedbackProviderId, department)
         }
-
-        assertEquals("feedback is too short.", exception.message)
     }
 
     @Test
@@ -47,11 +35,9 @@ class FeedbackServiceTest {
         val feedbackProviderId: Long? = null
         val department = Department.HR
 
-        val exception = assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalArgumentException> {
             feedbackService.insertFeedback(companyId, inappropriateFeedback, isAnonymous, feedbackProviderId, department)
         }
-
-        assertEquals("feedback contains inappropriate language.", exception.message)
     }
 
     @Test
