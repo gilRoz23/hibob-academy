@@ -15,7 +15,7 @@ class CompanyDaoTest @Autowired constructor(private val sql: DSLContext) {
     @Test
     fun `get company by name when company exists`() {
         val companyId = companyDao.insert("Bob")
-        val companyData = companyDao.getCompanyIdByName("Bob")
+        val companyData = companyDao.getCompanyByName("Bob")
 
         assertEquals("Bob", companyData?.name)
 
@@ -24,7 +24,7 @@ class CompanyDaoTest @Autowired constructor(private val sql: DSLContext) {
 
     @Test
     fun `get company by name when company does not exist`() {
-        val companyData = companyDao.getCompanyIdByName("Telad")
+        val companyData = companyDao.getCompanyByName("Telad")
         assertNull(companyData)
     }
 }

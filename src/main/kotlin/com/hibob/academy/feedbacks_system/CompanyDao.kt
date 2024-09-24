@@ -15,7 +15,7 @@ class CompanyDao(private val sql: DSLContext) {
         CompanyData(record[companyTable.id], record[companyTable.name])
     }
 
-    fun getCompanyIdByName(companyName: String) : CompanyData? {
+    fun getCompanyByName(companyName: String) : CompanyData? {
         return sql.select(companyTable.id, companyTable.name)
             .from(companyTable)
             .where(companyTable.name.eq(companyName))

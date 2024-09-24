@@ -19,7 +19,7 @@ class EmployeeDao(private val sql: DSLContext) {
         record[employeeTable.companyId])
     }
 
-    fun getEmployeeId(firstname: String, lastname: String, companyId: Long) : EmployeeData? {
+    fun getEmployee(firstname: String, lastname: String, companyId: Long) : EmployeeData? {
         return sql.select(employeeTable.firstName, employeeTable.lastName, employeeTable.companyId)
             .from(employeeTable)
             .where(employeeTable.firstName.eq(firstname), employeeTable.lastName.eq(lastname), employeeTable.companyId.eq(companyId))
