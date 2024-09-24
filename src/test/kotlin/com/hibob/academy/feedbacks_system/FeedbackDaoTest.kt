@@ -2,6 +2,7 @@ package com.hibob.academy.feedbacks_system
 
 import com.hibob.academy.utils.BobDbTest
 import org.jooq.DSLContext
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,71 +12,63 @@ import kotlin.random.Random
 @BobDbTest
 class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     private val feedbackDao = FeedbackDao(sql)
-    val companyId = Random.nextLong()
-    private val insertedFeedbackIds = mutableListOf<Long>()
+    private val companyId = Random.nextLong()
+    private var insertedFeedbackIds = listOf<Long>()
 
-
-    private fun deleteInsertedFeedbacks() {
+    @AfterEach
+    fun cleanup() {
         insertedFeedbackIds.forEach { feedbackId ->
             feedbackDao.deleteFeedback(feedbackId)
         }
-        insertedFeedbackIds.clear()
+        insertedFeedbackIds = listOf()
     }
 
     @Test
     fun `insert feedback successfully`() {
-        try {
-            val feedbackProviderId = Random.nextLong()
-            val feedbackId = feedbackDao.insertFeedback(
-                companyId = companyId,
-                content = "Great work on the last project!",
-                isAnonymous = false,
-                feedbackProviderId = feedbackProviderId,
-                department = Department.HR
-            )
-            insertedFeedbackIds.add(feedbackId) // Track inserted feedback ID
+        val feedbackProviderId = Random.nextLong()
+        val feedbackId = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "Great work on the last project!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR
+        )
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
-            val insertedFeedback = feedbackDao.getFeedbackById(feedbackId)
+        val insertedFeedback = feedbackDao.getFeedbackById(feedbackId)
 
-            assertNotNull(insertedFeedback)
-            assertEquals(companyId, insertedFeedback?.companyId)
-            assertEquals("Great work on the last project!", insertedFeedback?.content)
-            assertEquals(false, insertedFeedback?.isAnonymous)
-            assertEquals(feedbackProviderId, insertedFeedback?.feedbackProviderId)
-            assertEquals(Department.HR, insertedFeedback?.department)
-            assertEquals(false, insertedFeedback?.status) // not reviewed yet
-            assertTrue(insertedFeedback?.timeOfSubmitting?.isBefore(LocalDateTime.now()) == true)
-            assertEquals(feedbackId, insertedFeedback?.id)
-        } finally {
-            deleteInsertedFeedbacks() // Ensure records are deleted after the test
-        }
+        assertNotNull(insertedFeedback)
+        assertEquals(companyId, insertedFeedback?.companyId)
+        assertEquals("Great work on the last project!", insertedFeedback?.content)
+        assertEquals(false, insertedFeedback?.isAnonymous)
+        assertEquals(feedbackProviderId, insertedFeedback?.feedbackProviderId)
+        assertEquals(Department.HR, insertedFeedback?.department)
+        assertEquals(false, insertedFeedback?.status) // not reviewed yet
+        assertTrue(insertedFeedback?.timeOfSubmitting?.isBefore(LocalDateTime.now()) == true)
+        assertEquals(feedbackId, insertedFeedback?.id)
     }
 
     @Test
     fun `insert anonymous feedback`() {
-        try {
-            val feedbackId = feedbackDao.insertFeedback(
-                companyId = companyId,
-                content = "Someone doesn't flush the toilet consistently!",
-                isAnonymous = true,
-                feedbackProviderId = null,
-                department = Department.HR
-            )
-            insertedFeedbackIds.add(feedbackId)
+        val feedbackId = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "Someone doesn't flush the toilet consistently!",
+            isAnonymous = true,
+            feedbackProviderId = null,
+            department = Department.HR
+        )
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
-            val insertedFeedback = feedbackDao.getFeedbackById(feedbackId)
+        val insertedFeedback = feedbackDao.getFeedbackById(feedbackId)
 
-            assertNotNull(insertedFeedback)
-            assertEquals(companyId, insertedFeedback?.companyId)
-            assertEquals("Someone doesn't flush the toilet consistently!", insertedFeedback?.content)
-            assertEquals(true, insertedFeedback?.isAnonymous)
-            assertEquals(null, insertedFeedback?.feedbackProviderId)
-            assertEquals(Department.HR, insertedFeedback?.department)
-            assertEquals(false, insertedFeedback?.status) // not reviewed yet
-            assertTrue(insertedFeedback?.timeOfSubmitting?.isBefore(LocalDateTime.now()) == true)
-            assertEquals(feedbackId, insertedFeedback?.id)
-        } finally {
-            deleteInsertedFeedbacks()
-        }
+        assertNotNull(insertedFeedback)
+        assertEquals(companyId, insertedFeedback?.companyId)
+        assertEquals("Someone doesn't flush the toilet consistently!", insertedFeedback?.content)
+        assertEquals(true, insertedFeedback?.isAnonymous)
+        assertEquals(null, insertedFeedback?.feedbackProviderId)
+        assertEquals(Department.HR, insertedFeedback?.department)
+        assertEquals(false, insertedFeedback?.status) // not reviewed yet
+        assertTrue(insertedFeedback?.timeOfSubmitting?.isBefore(LocalDateTime.now()) == true)
+        assertEquals(feedbackId, insertedFeedback?.id)
     }
 }
