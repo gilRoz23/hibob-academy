@@ -1,9 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
 import com.hibob.academy.feedbacks_system.*
-import com.hibob.academy.feedbacks_system.CompanyService
 import com.hibob.academy.feedbacks_system.EmployeeData
-import com.hibob.academy.feedbacks_system.EmployeeService
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
