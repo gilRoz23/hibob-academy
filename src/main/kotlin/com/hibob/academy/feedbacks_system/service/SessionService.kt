@@ -21,8 +21,8 @@ class SessionService(private val companyDao: CompanyDao, private val employeeDao
 
     fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
-        val companyId = companyDao.getCompanyIdByName(jwtDet.companyName)?.id
-        val employeeData = employeeDao.getEmployeeId(jwtDet.firstname, jwtDet.lastname, companyId)
+        val companyId = companyDao.getCompanyByName(jwtDet.companyName)?.id
+        val employeeData = employeeDao.getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
             .claim("firstname", jwtDet.firstname)
