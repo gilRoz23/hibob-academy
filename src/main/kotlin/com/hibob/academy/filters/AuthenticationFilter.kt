@@ -36,7 +36,18 @@ class AuthenticationFilter(
         }
 
         try {
-            Jwts.parser().setSigningKey(SessionEmployeeService.key).parseClaimsJws(cookie)
+            val claims = Jwts.parser()
+                .setSigningKey(SessionEmployeeService.key)
+                .parseClaimsJws(cookie)
+                .body
+
+            // Set the claims as properties in the request context
+            requestContext.setProperty("firstname", claims["firstname"].toString())
+            requestContext.setProperty("lastname", claims["lastname"].toString())
+            requestContext.setProperty("companyId", claims["companyId"].toString())
+            requestContext.setProperty("employeeId", claims["employeeId"].toString())
+            requestContext.setProperty("role", claims["role"].toString())
+
         } catch (e: Exception) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
         }
