@@ -1,14 +1,13 @@
 package com.hibob.academy.feedbacks_system
 
-import com.hibob.academy.dao.*
 import org.springframework.stereotype.Component
-import com.hibob.academy.dao.PetType
 
 @Component
 class EmployeeService(private val employeeDao: EmployeeDao) {
 
-    fun getEmployeeId(firstname: String, lastname: String, companyId: Long) : EmployeeData? {
-
-        return employeeDao.getEmployeeId(firstname, lastname, companyId)
+    fun getEmployee(firstname: String, lastname: String, companyId: Long): EmployeeData {
+        val employeeData = employeeDao.getEmployee(firstname, lastname, companyId)
+            ?: throw IllegalArgumentException("Employee not found for firstname: $firstname, lastname: $lastname, companyId: $companyId")
+        return employeeData
     }
 }
