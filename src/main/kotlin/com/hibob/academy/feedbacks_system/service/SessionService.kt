@@ -1,7 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
-import com.hibob.academy.feedbacks_system.CompanyDao
-import com.hibob.academy.feedbacks_system.EmployeeDao
+import com.hibob.academy.feedbacks_system.CompanyService
+import com.hibob.academy.feedbacks_system.EmployeeService
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
 
 @Component
-class SessionService(private val companyDao: CompanyDao, private val employeeDao: EmployeeDao) {
+class SessionService(private val companyService: CompanyService, private val employeeService: EmployeeService) {
     // Generate a secure key for HS256
     companion object {
         val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
@@ -21,14 +21,15 @@ class SessionService(private val companyDao: CompanyDao, private val employeeDao
 
     fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
-        val companyId = companyDao.getCompanyByName(jwtDet.companyName)?.id
-        val employeeData = employeeDao.getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
+        val companyId = companyService.getCompanyByName(jwtDet.companyName).id
+        val employeeData = employeeService.getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
             .claim("firstname", jwtDet.firstname)
             .claim("lastname", jwtDet.lastname)
-            .claim("companyId", "${jwtDet.companyId}")
-            .claim("role", "${jwtDet.role}")
+            .claim("companyId", "$companyId")
+            .claim("employeeId", "$employeeData.id")
+            .claim("role", employeeData.role)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + TimeUnit.HOURS.toMillis(24)))
             .signWith(SignatureAlgorithm.HS256, key)
