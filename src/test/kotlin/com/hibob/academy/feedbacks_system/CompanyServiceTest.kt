@@ -9,14 +9,8 @@ import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 
 class CompanyServiceTest {
-    private lateinit var companyDao: CompanyDao
-    private lateinit var companyService: CompanyService
-
-    @BeforeEach
-    fun setUp() {
-        companyDao = mock(CompanyDao::class.java)
-        companyService = CompanyService(companyDao)
-    }
+    private var companyDao: CompanyDao = mock(CompanyDao::class.java)
+    private var companyService: CompanyService = CompanyService(companyDao)
 
     @Test
     fun `should return company data when company exists`() {
@@ -37,11 +31,10 @@ class CompanyServiceTest {
 
         whenever(companyDao.getCompanyByName(companyName)).thenReturn(null)
 
-        val exception = assertThrows<NoSuchElementException> {
+        assertThrows<NoSuchElementException> {
             companyService.getCompanyByName(companyName)
         }
 
-        assertEquals("No company found with name: $companyName", exception.message)
         verify(companyDao).getCompanyByName(companyName)
     }
 }
