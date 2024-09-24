@@ -16,11 +16,11 @@ class EmployeeDao(private val sql: DSLContext) {
             record[employeeTable.firstName],
             record[employeeTable.lastName],
             record[employeeTable.role],
-        record[employeeTable.companyId])
+            record[employeeTable.companyId])
     }
 
     fun getEmployee(firstname: String, lastname: String, companyId: Long) : EmployeeData? {
-        return sql.select(employeeTable.firstName, employeeTable.lastName, employeeTable.companyId)
+        return sql.select(employeeTable.id, employeeTable.firstName, employeeTable.lastName, employeeTable.role, employeeTable.companyId)
             .from(employeeTable)
             .where(employeeTable.firstName.eq(firstname), employeeTable.lastName.eq(lastname), employeeTable.companyId.eq(companyId))
             .fetchOne(employeeMapper)
