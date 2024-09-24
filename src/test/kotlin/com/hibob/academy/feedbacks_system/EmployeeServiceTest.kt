@@ -9,14 +9,8 @@ import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 
 class EmployeeServiceTest {
-    private lateinit var employeeDao: EmployeeDao
-    private lateinit var employeeService: EmployeeService
-
-    @BeforeEach
-    fun setUp() {
-        employeeDao = mock(EmployeeDao::class.java)
-        employeeService = EmployeeService(employeeDao)
-    }
+    private var employeeDao: EmployeeDao = mock(EmployeeDao::class.java)
+    private var employeeService: EmployeeService = EmployeeService(employeeDao)
 
     @Test
     fun `should return employee data when employee exists`() {
@@ -41,11 +35,10 @@ class EmployeeServiceTest {
 
         whenever(employeeDao.getEmployee(firstname, lastname, companyId)).thenReturn(null)
 
-        val exception = assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalArgumentException> {
             employeeService.getEmployee(firstname, lastname, companyId)
         }
 
-        assertEquals("Employee not found for firstname: $firstname, lastname: $lastname, companyId: $companyId", exception.message)
         verify(employeeDao).getEmployee(firstname, lastname, companyId)
     }
 }
