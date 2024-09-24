@@ -18,6 +18,19 @@ class FeedbackTable(tableName : String = "feedback") : JooqTable(tableName) {
     }
 }
 
+class EmployeeTable(tableName: String = "employee") : JooqTable(tableName) {
+    val id = createBigIntField("id")
+    val firstName = createVarcharField("first_name")
+    val lastName = createVarcharField("last_name")
+    val role = createVarcharField("role")
+    val companyId = createBigIntField("company_id")
+
+    companion object {
+        val instance = EmployeeTable()
+    }
+}
+
+
 class CompanyTable(tableName : String = "company") : JooqTable(tableName) {
     val id = createBigIntField("id")
     val name = createVarcharField("name")
