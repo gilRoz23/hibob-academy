@@ -1,7 +1,6 @@
 package com.hibob.academy.feedbacks_system.service
 
-import com.hibob.academy.feedbacks_system.CompanyService
-import com.hibob.academy.feedbacks_system.EmployeeService
+import com.hibob.academy.feedbacks_system.*
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -12,7 +11,7 @@ import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
 
 @Component
-class SessionEmployeeService(private val companyService: CompanyService, private val employeeService: EmployeeService) {
+class SessionEmployeeService(private val companyDao: CompanyDao, private val employeeDao: EmployeeDao) {
     // Generate a secure key for HS256
     companion object {
         val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
@@ -21,8 +20,8 @@ class SessionEmployeeService(private val companyService: CompanyService, private
 
     fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
-        val companyId = companyService.getCompanyByName(jwtDet.companyName).id
-        val employeeData = employeeService.getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
+        val companyId = getCompanyByName(jwtDet.companyName).id
+        val employeeData = getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
             .claim("firstname", jwtDet.firstname)
@@ -34,5 +33,17 @@ class SessionEmployeeService(private val companyService: CompanyService, private
             .setExpiration(Date(now.time + TimeUnit.HOURS.toMillis(24)))
             .signWith(SignatureAlgorithm.HS256, key)
             .compact()
+    }
+
+    fun getEmployee(firstname: String, lastname: String, companyId: Long): EmployeeData {
+        val employeeData = employeeDao.getEmployee(firstname, lastname, companyId)
+            ?: throw IllegalArgumentException("Employee not found for firstname: $firstname, lastname: $lastname, companyId: $companyId")
+        return employeeData
+    }
+
+    fun getCompanyByName(companyName: String): CompanyData {
+        val companyData = companyDao.getCompanyByName(companyName)
+            ?: throw NoSuchElementException("No company found with name: $companyName")
+        return companyData
     }
 }
