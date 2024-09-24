@@ -3,6 +3,7 @@ package com.hibob.academy.service
 import com.hibob.academy.dao.*
 import org.springframework.stereotype.Component
 import com.hibob.academy.dao.PetType
+import jakarta.ws.rs.core.NoContentException
 
 @Component
 class PetService(private val petDao: PetDao) {
@@ -10,7 +11,12 @@ class PetService(private val petDao: PetDao) {
     fun getPetsByType(companyId: Long, type: PetType): List<PetData> {
         validateCompanyId(companyId)
         validatePetType(type)
-        return petDao.petsByType(companyId, type)
+
+        val pets = petDao.petsByType(companyId, type)
+        if (pets.isEmpty()) {
+            throw NoContentException("No pets found for type: ${type.type}")
+        }
+        return pets
     }
 
     fun addPet(companyId: Long, name: String, type: PetType) {
@@ -28,7 +34,8 @@ class PetService(private val petDao: PetDao) {
 
     fun getOwnerByPetId(petId: Int): OwnerData? {
         validatePetId(petId)
-        return petDao.getOwnerByPetId(petId)
+        val owner = petDao.getOwnerByPetId(petId) ?: throw NoContentException("Owner not found for pet ID: $petId")
+        return owner
     }
 
     private fun validatePetType(type: PetType) {
