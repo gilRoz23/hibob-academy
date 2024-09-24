@@ -26,3 +26,8 @@ data class FeedbackData(
     val department: Department,
     val timeOfSubmitting: LocalDateTime
 )
+
+data class CompanyData(
+    val id: Long,
+    val name: String
+)
