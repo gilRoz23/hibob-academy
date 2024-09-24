@@ -1,6 +1,9 @@
 package com.hibob.academy.feedbacks_system.service
 
 import com.hibob.academy.feedbacks_system.*
+import com.hibob.academy.feedbacks_system.CompanyService
+import com.hibob.academy.feedbacks_system.EmployeeData
+import com.hibob.academy.feedbacks_system.EmployeeService
 import com.hibob.academy.feedbacks_system.resource.JWTDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -20,14 +23,27 @@ class SessionEmployeeService(private val companyDao: CompanyDao, private val emp
 
     fun createJwtToken(jwtDet: JWTDetails): String {
         val now = Date()
-        val companyId = getCompanyByName(jwtDet.companyName).id
-        val employeeData = getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
+        val companyId: Long
+        val employeeData: EmployeeData
+
+        try {
+            companyId = getCompanyByName(jwtDet.companyName).id
+        } catch (e: NoSuchElementException) {
+            throw e
+        }
+
+        try {
+            employeeData = getEmployee(jwtDet.firstname, jwtDet.lastname, companyId)
+        } catch (e: IllegalArgumentException) {
+            throw e
+        }
+
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
             .claim("firstname", jwtDet.firstname)
             .claim("lastname", jwtDet.lastname)
-            .claim("companyId", "$companyId")
-            .claim("employeeId", "$employeeData.id")
+            .claim("companyId", companyId)
+            .claim("employeeId", employeeData.id)
             .claim("role", employeeData.role)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + TimeUnit.HOURS.toMillis(24)))

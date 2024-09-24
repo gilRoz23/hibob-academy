@@ -24,7 +24,15 @@ class SessionEmployeeResource(private val sessionEmployeeService: SessionEmploye
     @POST
     @Path("/login")
     fun createJwtToken(jwtDet: JWTDetails): Response {
-        val token = sessionEmployeeService.createJwtToken(jwtDet)
-        return Response.ok().cookie(NewCookie.Builder(COOKIE_NAME).value(token).build()).build()
+        return try {
+            val token = sessionEmployeeService.createJwtToken(jwtDet)
+            Response.ok()
+                .cookie(NewCookie.Builder(COOKIE_NAME).value(token).build())
+                .build()
+        } catch (e: Exception) {
+            Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("${e.message}")
+                .build()
+        }
     }
 }
