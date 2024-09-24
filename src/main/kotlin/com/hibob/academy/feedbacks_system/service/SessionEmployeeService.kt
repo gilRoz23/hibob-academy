@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
 
 @Component
-class SessionService(private val companyService: CompanyService, private val employeeService: EmployeeService) {
+class SessionEmployeeService(private val companyService: CompanyService, private val employeeService: EmployeeService) {
     // Generate a secure key for HS256
     companion object {
         val key: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
