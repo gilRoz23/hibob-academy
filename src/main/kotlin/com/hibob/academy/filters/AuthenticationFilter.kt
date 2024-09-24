@@ -1,7 +1,7 @@
 package com.hibob.academy.filters
 
 import com.hibob.academy.feedbacks_system.resource.SessionEmployeeResource
-import com.hibob.academy.feedbacks_system.service.SessionService
+import com.hibob.academy.feedbacks_system.service.SessionEmployeeService
 import io.jsonwebtoken.Jwts
 import jakarta.ws.rs.container.ContainerRequestContext
 import jakarta.ws.rs.container.ContainerRequestFilter
@@ -36,7 +36,7 @@ class AuthenticationFilter(
         }
 
         try {
-            Jwts.parser().setSigningKey(SessionService.key).parseClaimsJws(cookie)
+            Jwts.parser().setSigningKey(SessionEmployeeService.key).parseClaimsJws(cookie)
         } catch (e: Exception) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build())
         }

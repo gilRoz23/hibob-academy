@@ -1,6 +1,6 @@
 package com.hibob.academy.feedbacks_system.resource
 
-import com.hibob.academy.feedbacks_system.service.SessionService
+import com.hibob.academy.feedbacks_system.service.SessionEmployeeService
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller
 @Path("api/v1/employee-feedback/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class SessionEmployeeResource(private val sessionService: SessionService) {
+class SessionEmployeeResource(private val sessionEmployeeService: SessionEmployeeService) {
 
     companion object {
         const val COOKIE_NAME = "cookieVal"
@@ -24,7 +24,7 @@ class SessionEmployeeResource(private val sessionService: SessionService) {
     @POST
     @Path("/login")
     fun createJwtToken(jwtDet: JWTDetails): Response {
-        val token = sessionService.createJwtToken(jwtDet)
+        val token = sessionEmployeeService.createJwtToken(jwtDet)
         return Response.ok().cookie(NewCookie.Builder(COOKIE_NAME).value(token).build()).build()
     }
 }
