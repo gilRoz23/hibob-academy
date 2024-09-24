@@ -10,7 +10,6 @@ import kotlin.random.Random
 
 @BobDbTest
 class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
-
     private val feedbackDao = FeedbackDao(sql)
     val companyId = Random.nextLong()
     private val insertedFeedbackIds = mutableListOf<Long>()

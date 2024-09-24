@@ -1,11 +1,9 @@
 package com.hibob.academy.feedbacks_system
 
-import com.hibob.academy.dao.PetData
 import org.jooq.DSLContext
 import org.jooq.RecordMapper
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.util.*
 
 
 @Component
