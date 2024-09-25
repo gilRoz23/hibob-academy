@@ -42,22 +42,25 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
     @GET
     @Path("/get-all-feedbacks")
     fun getAllFeedbacks(@Context requestContext: ContainerRequestContext): Response {
-        val role = extractPropertyAsString(requestContext, "role")
-        if (role == "hr" || role == "manager" || role == "admin") {
-            val companyId = extractPropertyAsLong(requestContext, "companyId")
-            if (companyId != null) {
-                val feedbacksList = feedbackService.getAllCompanyFeedbacks(companyId)
-                return Response.status(Response.Status.OK).entity(feedbacksList).build()
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Company ID is missing").build()
-            }
-        }
-        else {
-            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+        val companyId = isAuthorizedUser(requestContext)
+        return if (companyId != null) {
+            val feedbacksList = feedbackService.getAllCompanyFeedbacks(companyId)
+            Response.status(Response.Status.OK).entity(feedbacksList).build()
+        } else {
+            Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
         }
     }
 
-    // Private function to extract properties as Long
+
+    private fun isAuthorizedUser(requestContext: ContainerRequestContext): Long? {
+        val role = extractPropertyAsString(requestContext, "role")
+        return if (role == "hr" || role == "manager" || role == "admin") {
+            extractPropertyAsLong(requestContext, "companyId")
+        } else {
+            null
+        }
+    }
+
     private fun extractPropertyAsLong(requestContext: ContainerRequestContext, propertyName: String): Long? {
         return requestContext.getProperty(propertyName)?.toString()?.toLongOrNull()
     }
