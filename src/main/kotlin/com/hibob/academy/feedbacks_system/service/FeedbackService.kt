@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import com.hibob.academy.feedbacks_system.Department
 import com.hibob.academy.feedbacks_system.FeedbackDao
 import com.hibob.academy.feedbacks_system.FeedbackData
+import java.time.LocalDateTime
 
 @Component
 class FeedbackService(private val feedbackDao: FeedbackDao) {
@@ -40,4 +41,8 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
         return feedbackDao.getAllCompanyFeedbacks(companyId)
     }
 
+    fun filterFeedbacks(companyId: Long, isAnonymous: Boolean?, status: Boolean?, feedbackProviderId: Long?, department: Department?, timeOffSubmitting: LocalDateTime?): List<FeedbackData> {
+        val filter = FeedbackDao.FeedbackFilter(companyId, isAnonymous, status, feedbackProviderId, department, timeOffSubmitting)
+        return feedbackDao.filterFeedbacks(filter)
+    }
 }
