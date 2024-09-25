@@ -3,6 +3,7 @@ package com.hibob.academy.feedbacks_system.service
 import org.springframework.stereotype.Component
 import com.hibob.academy.feedbacks_system.Department
 import com.hibob.academy.feedbacks_system.FeedbackDao
+import com.hibob.academy.feedbacks_system.FeedbackData
 
 @Component
 class FeedbackService(private val feedbackDao: FeedbackDao) {
@@ -34,4 +35,9 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
             throw IllegalArgumentException("feedback contains inappropriate language.")
         }
     }
+
+    fun getAllCompanyFeedbacks(companyId: Long): List<FeedbackData> {
+        return feedbackDao.getAllCompanyFeedbacks(companyId)
+    }
+
 }

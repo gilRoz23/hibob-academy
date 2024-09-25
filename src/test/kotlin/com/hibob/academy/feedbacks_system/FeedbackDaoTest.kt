@@ -72,6 +72,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertEquals(feedbackId, insertedFeedback?.id)
     }
 
+
     @Test
     fun `get all feedback by companyId successfully`() {
         val feedbackId1 = feedbackDao.insertFeedback(
@@ -110,7 +111,6 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertTrue(feedbackContents.contains("I'm Mr. Meeseeks!"))
         assertTrue(feedbackContents.contains("OOOWeeee!"))
     }
-
     @Test
     fun `get all feedback by companyId when no feedback exists`() {
         val feedbacks = feedbackDao.getAllCompanyFeedbacks(Random.nextLong())
