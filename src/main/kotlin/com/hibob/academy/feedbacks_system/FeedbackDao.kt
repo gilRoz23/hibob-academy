@@ -59,24 +59,24 @@ class FeedbackDao(private val sql: DSLContext) {
 
 
     fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
-        val query = sql.selectFrom(feedbackTable)
+        return sql.selectFrom(feedbackTable).apply {
+            filter.companyId?.let { where(feedbackTable.companyId.eq(it)) }
+            filter.isAnonymous?.let { where(feedbackTable.isAnonymous.eq(it)) }
+            filter.status?.let { where(feedbackTable.status.eq(it)) }
+            filter.feedbackProviderId?.let { where(feedbackTable.feedbackProviderId.eq(it)) }
+            filter.department?.let { where(feedbackTable.department.eq(it.name)) }
 
-        filter.companyId?.let { query.where(feedbackTable.companyId.eq(it)) }
-        filter.isAnonymous?.let { query.where(feedbackTable.isAnonymous.eq(it)) }
-        filter.status?.let { query.where(feedbackTable.status.eq(it)) }
-        filter.feedbackProviderId?.let { query.where(feedbackTable.feedbackProviderId.eq(it)) }
-        filter.department?.let { query.where(feedbackTable.department.eq(it.name)) }
+            filter.timeOfSubmitting?.let { time ->
+                val dateToCompare = time.toLocalDate()
+                val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
 
-        filter.timeOfSubmitting?.let { time ->
-            val dateToCompare = time.toLocalDate()
+                where(dateField.ge(dateToCompare))
 
-            val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
-
-            query.where(dateField.ge(dateToCompare))
-        }
-
-        return query.fetch(feedbackMapper)
+                orderBy(feedbackTable.timeOfSubmitting.desc())
+            }
+        }.fetch(feedbackMapper)
     }
+
 
 
     data class FeedbackFilter(
