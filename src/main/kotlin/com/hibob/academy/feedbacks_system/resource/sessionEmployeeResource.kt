@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class SessionEmployeeResource(private val sessionEmployeeService: SessionEmployeeService) {
-
     companion object {
         const val COOKIE_NAME = "cookieVal"
     }

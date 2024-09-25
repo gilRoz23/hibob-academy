@@ -26,7 +26,7 @@ class SessionEmployeeService(private val companyDao: CompanyDao, private val emp
 
         try {
             companyId = getCompanyByName(jwtDet.companyName).id
-        } catch (e: NoSuchElementException) {
+        } catch (e: IllegalArgumentException) {
             throw e
         }
 
