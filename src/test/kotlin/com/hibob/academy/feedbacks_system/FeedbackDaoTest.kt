@@ -73,36 +73,38 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     }
 
     @Test
-    fun `get feedback by employeeId successfully`() {
-        val employeeId = Random.nextLong()
+    fun `get all feedback by companyId successfully`() {
         val feedbackId1 = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "I'm Mr. Meeseeks!",
             isAnonymous = false,
-            feedbackProviderId = employeeId,
+            feedbackProviderId = Random.nextLong(),
             department = Department.IT
         )
         val feedbackId2 = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "OOOWeeee!",
-            isAnonymous = false,
-            feedbackProviderId = employeeId,
-            department = Department.IT
+            isAnonymous = true,
+            feedbackProviderId = Random.nextLong(),
+            department = Department.HR
         )
+
+        val differentCompanyId = Random.nextLong()
         val feedbackId3 = feedbackDao.insertFeedback(
-            companyId = companyId,
+            companyId = differentCompanyId,
             content = "Rick Sanchez, I'm in",
             isAnonymous = false,
             feedbackProviderId = Random.nextLong(),
-            department = Department.IT
+            department = Department.SALES
         )
 
         insertedFeedbackIds = insertedFeedbackIds + listOf(feedbackId1, feedbackId2, feedbackId3)
 
-        val feedbacks = feedbackDao.getFeedbackByEmployeeId(employeeId)
+        val feedbacks = feedbackDao.getAllCompanyFeedbacks(companyId)
 
+        // Assertions
         assertEquals(2, feedbacks.size)
-        assertTrue(feedbacks.all { it.feedbackProviderId == employeeId })
+        assertTrue(feedbacks.all { it.companyId == companyId })
 
         val feedbackContents = feedbacks.map { it.content }
         assertTrue(feedbackContents.contains("I'm Mr. Meeseeks!"))
@@ -110,11 +112,10 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     }
 
     @Test
-    fun `get feedback by employeeId when no feedback exists`() {
-        val feedbackProviderId = Random.nextLong()
-
-        val feedbacks = feedbackDao.getFeedbackByEmployeeId(feedbackProviderId)
+    fun `get all feedback by companyId when no feedback exists`() {
+        val feedbacks = feedbackDao.getAllCompanyFeedbacks(Random.nextLong())
 
         assertTrue(feedbacks.isEmpty())
     }
+
 }

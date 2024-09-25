@@ -49,9 +49,9 @@ class FeedbackDao(private val sql: DSLContext) {
             .fetchOne(feedbackMapper)
     }
 
-    fun getFeedbackByEmployeeId(employeeId: Long): List<FeedbackData> {
+    fun getAllCompanyFeedbacks(companyId: Long): List<FeedbackData> {
         return sql.selectFrom(feedbackTable)
-            .where(feedbackTable.feedbackProviderId.eq(employeeId))
+            .where(feedbackTable.companyId.eq(companyId))
             .fetch(feedbackMapper)
     }
 }
