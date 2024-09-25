@@ -54,4 +54,26 @@ class FeedbackDao(private val sql: DSLContext) {
             .where(feedbackTable.companyId.eq(companyId))
             .fetch(feedbackMapper)
     }
+
+    fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
+        val query = sql.selectFrom(feedbackTable)
+
+        filter.companyId?.let { query.where(feedbackTable.companyId.eq(it)) }
+        filter.isAnonymous?.let { query.where(feedbackTable.isAnonymous.eq(it)) }
+        filter.status?.let { query.where(feedbackTable.status.eq(it)) }
+        filter.feedbackProviderId?.let { query.where(feedbackTable.feedbackProviderId.eq(it)) }
+        filter.department?.let { query.where(feedbackTable.department.eq(it.name)) }
+        filter.timeOfSubmitting?.let { query.where(feedbackTable.timeOfSubmitting.eq(it)) }
+
+        return query.fetch(feedbackMapper)
+    }
+
+    data class FeedbackFilter(
+        val companyId: Long? = null,
+        val isAnonymous: Boolean? = null,
+        val status: Boolean? = null,
+        val feedbackProviderId: Long? = null,
+        val department: Department? = null,
+        val timeOfSubmitting: LocalDateTime? = null
+    )
 }
