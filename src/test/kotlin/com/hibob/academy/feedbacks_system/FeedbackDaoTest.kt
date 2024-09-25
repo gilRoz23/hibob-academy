@@ -305,43 +305,42 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     }
 
 
-//    @Test
-//    fun `filter feedbacks by timeOfSubmitting`() {
-//        val feedbackProviderId = Random.nextLong()
-//        val feedbackId1 = feedbackDao.insertFeedback(
-//            companyId = companyId,
-//            content = "This feedback is submitted as quickly as Joey finishing his sandwich!",
-//            isAnonymous = false,
-//            feedbackProviderId = feedbackProviderId,
-//            department = Department.HR
-//        )
-//
-//        val anotherFeedbackId = feedbackDao.insertFeedback(
-//            companyId = companyId + 1,
-//            content = "This feedback is more boring than a discussion about dinosaurs.",
-//            isAnonymous = false,
-//            feedbackProviderId = feedbackProviderId,
-//            department = Department.HR
-//        )
-//
-//        val timestamp1 = LocalDateTime.now()
-//
-//        Thread.sleep(2000)
-//
-//        val feedbackId2 = feedbackDao.insertFeedback(
-//            companyId = companyId,
-//            content = "This feedback took longer than Monica’s last cleaning spree!",
-//            isAnonymous = false,
-//            feedbackProviderId = feedbackProviderId,
-//            department = Department.HR
-//        )
-//
-//        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + feedbackId2 + anotherFeedbackId
-//
-//        val filter = FeedbackDao.FeedbackFilter(companyId = companyId, timeOfSubmitting = timestamp1)
-//        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-//
-//        assertEquals(1, filteredFeedbacks.size)
-//        assertEquals("This feedback is submitted as quickly as Joey finishing his sandwich!", filteredFeedbacks.first().content)
-//    }
+    @Test
+    fun `filter feedbacks by timeOfSubmitting`() {
+        val feedbackProviderId = Random.nextLong()
+        val feedbackId1 = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "This feedback is submitted as quickly as Joey finishing his sandwich!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR
+        )
+
+        val anotherFeedbackId = feedbackDao.insertFeedback(
+            companyId = companyId + 1,
+            content = "This feedback is more boring than a discussion about dinosaurs.",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR
+        )
+
+        val timestamp1 = LocalDateTime.now()
+
+        Thread.sleep(2000)
+
+        val feedbackId2 = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "This feedback took longer than Monica’s last cleaning spree!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR
+        )
+
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + feedbackId2 + anotherFeedbackId
+
+        val filter = FeedbackDao.FeedbackFilter(companyId = companyId, timeOfSubmitting = timestamp1)
+        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
+
+        assertEquals(2, filteredFeedbacks.size)
+    }
 }

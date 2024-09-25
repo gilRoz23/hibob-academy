@@ -72,14 +72,11 @@ class FeedbackDao(private val sql: DSLContext) {
 
             val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
 
-            query.where(dateField.eq(dateToCompare))
+            query.where(dateField.ge(dateToCompare))
         }
 
         return query.fetch(feedbackMapper)
     }
-
-
-
 
 
     data class FeedbackFilter(
