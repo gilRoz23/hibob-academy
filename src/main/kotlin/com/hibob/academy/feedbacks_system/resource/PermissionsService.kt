@@ -4,13 +4,9 @@ import org.springframework.stereotype.Component
 @Component
 class PermissionService {
     enum class Permission {
-        HR,
-        MANAGER,
-        ADMIN,
-        HR_MANAGER,
-        HR_ADMIN,
-        MANAGER_ADMIN,
-        HR_MANAGER_ADMIN
+        FEEDBACK_VIEWING,
+        RESPONSE,
+        TOGGLE_IS_REVIEWED
     }
 
     fun returnPermissions(requestContext: ContainerRequestContext): List<Permission> {
@@ -20,10 +16,9 @@ class PermissionService {
 
     fun mapRoleToPermissions(role: String): List<Permission> {
         return when (role.lowercase()) {
-            "hr" -> listOf(Permission.HR, Permission.HR_ADMIN, Permission.HR_MANAGER, Permission.HR_MANAGER_ADMIN)
-            "manager" -> listOf(Permission.MANAGER, Permission.MANAGER_ADMIN, Permission.HR_MANAGER, Permission.HR_MANAGER_ADMIN)
-            "admin" -> listOf(Permission.ADMIN, Permission.HR_ADMIN, Permission.MANAGER_ADMIN, Permission.HR_MANAGER_ADMIN)
-            else -> emptyList() // Return an empty list for unrecognized roles
+            "hr" -> listOf(Permission.FEEDBACK_VIEWING, Permission.RESPONSE, Permission.TOGGLE_IS_REVIEWED)
+            "admin" -> listOf(Permission.FEEDBACK_VIEWING)
+            else -> emptyList()
         }
     }
 

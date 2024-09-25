@@ -49,7 +49,7 @@ class FeedbackResource(
         val permissionService = PermissionService()
         val permissions = permissionService.returnPermissions(requestContext)
 
-        return if (permissions.contains(PermissionService.Permission.HR_ADMIN)) {
+        return if (permissions.contains(PermissionService.Permission.FEEDBACK_VIEWING)) {
             val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
             companyId?.let {
