@@ -316,21 +316,21 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
 //            department = Department.HR
 //        )
 //
-//        val timestamp1 = LocalDateTime.now()
-//
-//        Thread.sleep(1000)
-//
-//        val feedbackId2 = feedbackDao.insertFeedback(
-//            companyId = companyId,
-//            content = "This feedback took longer than Monica’s last cleaning spree!",
+//        val anotherFeedbackId = feedbackDao.insertFeedback(
+//            companyId = companyId + 1,
+//            content = "This feedback is more boring than a discussion about dinosaurs.",
 //            isAnonymous = false,
 //            feedbackProviderId = feedbackProviderId,
 //            department = Department.HR
 //        )
 //
-//        val anotherFeedbackId = feedbackDao.insertFeedback(
-//            companyId = companyId + 1,
-//            content = "This feedback is more boring than a discussion about dinosaurs.",
+//        val timestamp1 = LocalDateTime.now()
+//
+//        Thread.sleep(2000)
+//
+//        val feedbackId2 = feedbackDao.insertFeedback(
+//            companyId = companyId,
+//            content = "This feedback took longer than Monica’s last cleaning spree!",
 //            isAnonymous = false,
 //            feedbackProviderId = feedbackProviderId,
 //            department = Department.HR

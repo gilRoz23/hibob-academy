@@ -4,6 +4,8 @@ import org.jooq.DSLContext
 import org.jooq.RecordMapper
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
+import org.jooq.impl.DSL
+import java.time.LocalDate
 
 
 @Component
@@ -55,6 +57,7 @@ class FeedbackDao(private val sql: DSLContext) {
             .fetch(feedbackMapper)
     }
 
+
     fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
         val query = sql.selectFrom(feedbackTable)
 
@@ -63,10 +66,21 @@ class FeedbackDao(private val sql: DSLContext) {
         filter.status?.let { query.where(feedbackTable.status.eq(it)) }
         filter.feedbackProviderId?.let { query.where(feedbackTable.feedbackProviderId.eq(it)) }
         filter.department?.let { query.where(feedbackTable.department.eq(it.name)) }
-        filter.timeOfSubmitting?.let { query.where(feedbackTable.timeOfSubmitting.eq(it)) }
+
+        filter.timeOfSubmitting?.let { time ->
+            val dateToCompare = time.toLocalDate()
+
+            val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
+
+            query.where(dateField.eq(dateToCompare))
+        }
 
         return query.fetch(feedbackMapper)
     }
+
+
+
+
 
     data class FeedbackFilter(
         val companyId: Long? = null,
