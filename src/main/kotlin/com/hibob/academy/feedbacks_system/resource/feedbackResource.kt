@@ -39,9 +39,31 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
         return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
     }
 
+    @GET
+    @Path("/get-all-feedbacks")
+    fun getAllFeedbacks(@Context requestContext: ContainerRequestContext): Response {
+        val role = extractPropertyAsString(requestContext, "role")
+        if (role == "hr" || role == "manager" || role == "admin") {
+            val companyId = extractPropertyAsLong(requestContext, "companyId")
+            if (companyId != null) {
+                val feedbacksList = feedbackService.getAllCompanyFeedbacks(companyId)
+                return Response.status(Response.Status.OK).entity(feedbacksList).build()
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Company ID is missing").build()
+            }
+        }
+        else {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+        }
+    }
+
     // Private function to extract properties as Long
     private fun extractPropertyAsLong(requestContext: ContainerRequestContext, propertyName: String): Long? {
         return requestContext.getProperty(propertyName)?.toString()?.toLongOrNull()
+    }
+
+    private fun extractPropertyAsString(requestContext: ContainerRequestContext, propertyName: String): String? {
+        return requestContext.getProperty(propertyName)?.toString()
     }
 }
 
