@@ -1,5 +1,6 @@
 package com.hibob.academy.feedbacks_system.resource
 
+import PermissionService
 import com.hibob.academy.feedbacks_system.Department
 import com.hibob.academy.feedbacks_system.service.FeedbackService
 import jakarta.ws.rs.*
@@ -13,18 +14,21 @@ import org.springframework.stereotype.Controller
 @Path("/api/v1/employee-feedback")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class FeedbackResource(private val feedbackService: FeedbackService) {
+class FeedbackResource(
+    private val feedbackService: FeedbackService
+) {
 
     @POST
     @Path("/submit-feedback")
     fun submitFeedback(@Context requestContext: ContainerRequestContext, feedbackRequest: FeedbackRequest): Response {
+        val permissionService = PermissionService()
         val feedbackProvider: Long? = if (feedbackRequest.isAnonymous) {
             null
         } else {
-            extractPropertyAsLong(requestContext, "employeeId")
+            permissionService.extractPropertyAsLong(requestContext, "employeeId")
         }
 
-        val companyId = extractPropertyAsLong(requestContext, "companyId")
+        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
             ?: return Response.status(Response.Status.BAD_REQUEST)
                 .entity("couldn't convert companyId").build()
 
@@ -42,31 +46,18 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
     @GET
     @Path("/get-all-feedbacks")
     fun getAllFeedbacks(@Context requestContext: ContainerRequestContext): Response {
-        val companyId = isAuthorizedUser(requestContext)
-        return if (companyId != null) {
-            val feedbacksList = feedbackService.getAllCompanyFeedbacks(companyId)
-            Response.status(Response.Status.OK).entity(feedbacksList).build()
+        val permissionService = PermissionService()
+        val permissions = permissionService.returnPermissions(requestContext)
+
+        return if (permissions.contains(PermissionService.Permission.HR_ADMIN)) {
+            val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
+
+            companyId?.let {
+                Response.ok(feedbackService.getAllCompanyFeedbacks(it)).build()
+            } ?: Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
         } else {
             Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
         }
-    }
-
-
-    private fun isAuthorizedUser(requestContext: ContainerRequestContext): Long? {
-        val role = extractPropertyAsString(requestContext, "role")
-        return if (role == "hr" || role == "manager" || role == "admin") {
-            extractPropertyAsLong(requestContext, "companyId")
-        } else {
-            null
-        }
-    }
-
-    private fun extractPropertyAsLong(requestContext: ContainerRequestContext, propertyName: String): Long? {
-        return requestContext.getProperty(propertyName)?.toString()?.toLongOrNull()
-    }
-
-    private fun extractPropertyAsString(requestContext: ContainerRequestContext, propertyName: String): String? {
-        return requestContext.getProperty(propertyName)?.toString()
     }
 }
 
