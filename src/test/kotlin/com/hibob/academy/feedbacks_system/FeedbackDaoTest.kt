@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
 @BobDbTest
@@ -306,18 +305,40 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     }
 
 
-//    @Test
-//    fun `filter feedbacks by timeOfSubmitting`() {
-//        val companyId = 1L
-//        val timestampString = "2024-09-25 10:20:12.011000"
-//
-//        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
-//
-//        val localDateTime: LocalDateTime = LocalDateTime.parse(timestampString, formatter)
-//
-//        val filter = FeedbackDao.FeedbackFilter(companyId = companyId, timeOfSubmitting = localDateTime)
-//        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-//
-//        assertEquals(6, filteredFeedbacks.size)
-//    }
+    @Test
+    fun `filter feedbacks by date`() {
+        val feedbackProviderId = Random.nextLong()
+
+        val feedbackId1 = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "Let's rock this project!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.SALES,
+        )
+
+        val feedbackId2 = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "What a tough day!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.SALES,
+        )
+
+        val feedbackId3 = feedbackDao.insertFeedback(
+            companyId = companyId + 1,
+            content = "Can't wait for the weekend!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.SALES,
+        )
+
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + feedbackId2 + feedbackId3
+
+        val filterByDate = FeedbackDao.FeedbackFilter(companyId = companyId, timeOfSubmitting = LocalDateTime.now())
+        val filteredDateFeedbacks = feedbackDao.filterFeedbacks(filterByDate)
+
+        assertEquals(2, filteredDateFeedbacks.size)
+    }
+
 }
