@@ -17,17 +17,14 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
 
     @POST
     @Path("/submit-feedback")
-    fun submitFeedback(
-        @Context requestContext: ContainerRequestContext,
-        feedbackRequest: FeedbackRequest
-    ): Response {
+    fun submitFeedback(@Context requestContext: ContainerRequestContext, feedbackRequest: FeedbackRequest): Response {
         val feedbackProvider: Long? = if (feedbackRequest.isAnonymous) {
             null
         } else {
-            requestContext.getProperty("employeeId")?.toString()?.toLongOrNull()
+            extractPropertyAsLong(requestContext, "employeeId")
         }
 
-        val companyId = requestContext.getProperty("companyId")?.toString()?.toLongOrNull()
+        val companyId = extractPropertyAsLong(requestContext, "companyId")
             ?: return Response.status(Response.Status.BAD_REQUEST)
                 .entity("couldn't convert companyId").build()
 
@@ -39,7 +36,12 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
             feedbackRequest.department
         )
 
-        return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build();
+        return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
+    }
+
+    // Private function to extract properties as Long
+    private fun extractPropertyAsLong(requestContext: ContainerRequestContext, propertyName: String): Long? {
+        return requestContext.getProperty(propertyName)?.toString()?.toLongOrNull()
     }
 }
 
