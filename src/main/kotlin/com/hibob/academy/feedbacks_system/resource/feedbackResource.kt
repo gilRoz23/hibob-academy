@@ -61,4 +61,21 @@ class FeedbackResource(
             return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
         }
     }
+
+    @GET
+    @Path("/filter-feedbacks")
+    fun filterFeedbacks(@Context requestContext: ContainerRequestContext, feedbackData: FeedbackData): Response {
+        val permissionService = PermissionService()
+        val permissions = permissionService.returnPermissions(requestContext)
+
+        return if (permissions.contains(PermissionService.Permission.FEEDBACK_VIEWING)) {
+            val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
+
+            companyId?.let {
+                Response.ok(feedbackService.filterFeedbacks(it, feedbackData.isAnonymous, feedbackData.status, feedbackData.feedbackProviderId, feedbackData.department, feedbackData.timeOfSubmitting)).build()
+            } ?: Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+        } else {
+            Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+        }
+    }
 }
