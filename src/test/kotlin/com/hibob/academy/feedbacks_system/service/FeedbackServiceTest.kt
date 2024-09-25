@@ -7,8 +7,7 @@ import org.jooq.impl.DSL.every
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
@@ -111,6 +110,214 @@ class FeedbackServiceTest {
         assertEquals(0, feedbacks.size)
 
         verify(feedbackDao).getAllCompanyFeedbacks(companyId)
+    }
+
+    @Test
+    fun `should return filtered feedbacks based on isAnonymous`() {
+        val companyId = 1L
+        val isAnonymous = true
+        val feedbackId1 = Random.nextLong()
+        val feedbackId2 = Random.nextLong()
+        val feedbackProviderId = Random.nextLong()
+        val timeOfSubmitting = LocalDateTime.now()
+
+            val feedbackData1 = FeedbackData(
+                id = feedbackId1,
+                companyId = companyId,
+                content = "Anonymous feedback",
+                isAnonymous = true,
+                status = false,
+                feedbackProviderId = feedbackProviderId,
+                department = Department.IT,
+                timeOfSubmitting = timeOfSubmitting
+            )
+            val feedbackData2 = FeedbackData(
+                id = feedbackId2,
+                companyId = companyId,
+                content = "Non-anonymous feedback",
+                isAnonymous = false,
+                status = false,
+                feedbackProviderId = feedbackProviderId,
+                department = Department.HR,
+                timeOfSubmitting = timeOfSubmitting
+            )
+
+
+        val filter = FeedbackDao.FeedbackFilter(companyId, true, null, null, null, null)
+        doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
+
+        val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, isAnonymous, null, null, null, null)
+
+        assertEquals(1, filteredFeedbacks.size)
+        assertTrue(filteredFeedbacks.all { it.isAnonymous })
+
+        verify(feedbackDao).filterFeedbacks(filter)
+    }
+
+
+    @Test
+    fun `should filter feedbacks by status`() {
+        val companyId = 1L
+        val feedbackProviderId: Long? = null
+        val timeOfSubmitting = LocalDateTime.now()
+
+        val feedbackId1 = 103L
+        val feedbackId2 = 104L
+
+        val feedbackData1 = FeedbackData(
+            id = feedbackId1,
+            companyId = companyId,
+            content = "First feedback",
+            isAnonymous = true,
+            status = true,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.IT,
+            timeOfSubmitting = timeOfSubmitting
+        )
+        val feedbackData2 = FeedbackData(
+            id = feedbackId2,
+            companyId = companyId,
+            content = "Second feedback",
+            isAnonymous = true,
+            status = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.IT,
+            timeOfSubmitting = timeOfSubmitting
+        )
+
+        val filter = FeedbackDao.FeedbackFilter(companyId, null, true, null, null, null)
+        doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
+
+        val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, true, null, null, null)
+
+        assertEquals(1, filteredFeedbacks.size)
+        assertTrue(filteredFeedbacks.all { it.status })
+
+        verify(feedbackDao).filterFeedbacks(filter)
+    }
+
+
+
+    @Test
+    fun `should filter feedbacks by feedback provider id`() {
+        val companyId = 1L
+        val feedbackProviderId = 200L
+        val timeOfSubmitting = LocalDateTime.now()
+
+        val feedbackId1 = 105L
+
+        val feedbackData1 = FeedbackData(
+            id = feedbackId1,
+            companyId = companyId,
+            content = "Feedback from provider",
+            isAnonymous = true,
+            status = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.IT,
+            timeOfSubmitting = timeOfSubmitting
+        )
+        val feedbackData2 = FeedbackData(
+            id = feedbackId1+1,
+            companyId = companyId,
+            content = "Anonymous feedback",
+            isAnonymous = true,
+            status = false,
+            feedbackProviderId = feedbackProviderId+1,
+            department = Department.IT,
+            timeOfSubmitting = timeOfSubmitting
+        )
+
+        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, feedbackProviderId, null, null)
+        doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
+
+        val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, feedbackProviderId, null, null)
+
+        assertEquals(1, filteredFeedbacks.size)
+        assertTrue(filteredFeedbacks.all { it.feedbackProviderId == feedbackProviderId })
+
+        verify(feedbackDao).filterFeedbacks(filter)
+    }
+
+    @Test
+    fun `should filter feedbacks by department`() {
+        val companyId = 1L
+        val department = Department.HR
+        val timeOfSubmitting = LocalDateTime.now()
+
+        val feedbackId1 = 107L
+        val feedbackId2 = 108L
+
+        val feedbackData1 = FeedbackData(
+            id = feedbackId1,
+            companyId = companyId,
+            content = "HR feedback",
+            isAnonymous = false,
+            status = true,
+            feedbackProviderId = null,
+            department = department,
+            timeOfSubmitting = timeOfSubmitting
+        )
+        val feedbackData2 = FeedbackData(
+            id = feedbackId2,
+            companyId = companyId,
+            content = "IT feedback",
+            isAnonymous = false,
+            status = true,
+            feedbackProviderId = null,
+            department = Department.IT,
+            timeOfSubmitting = timeOfSubmitting
+        )
+
+        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, null, department, null)
+        doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
+
+        val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, null, department, null)
+
+        assertEquals(1, filteredFeedbacks.size)
+        assertTrue(filteredFeedbacks.all { it.department == department })
+
+        verify(feedbackDao).filterFeedbacks(filter)
+    }
+
+    @Test
+    fun `should filter feedbacks by time of submitting`() {
+        val companyId = 1L
+        val timeOfSubmitting = LocalDateTime.now()
+        val pastTime = timeOfSubmitting.minusDays(1)
+
+        val feedbackId1 = 109L
+        val feedbackId2 = 110L
+
+        val feedbackData1 = FeedbackData(
+            id = feedbackId1,
+            companyId = companyId,
+            content = "Feedback from yesterday",
+            isAnonymous = false,
+            status = true,
+            feedbackProviderId = null,
+            department = Department.HR,
+            timeOfSubmitting = pastTime
+        )
+        val feedbackData2 = FeedbackData(
+            id = feedbackId2,
+            companyId = companyId,
+            content = "Feedback from today",
+            isAnonymous = false,
+            status = true,
+            feedbackProviderId = null,
+            department = Department.HR,
+            timeOfSubmitting = timeOfSubmitting
+        )
+
+        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, null, null, timeOfSubmitting)
+        doReturn(listOf(feedbackData2)).whenever(feedbackDao).filterFeedbacks(filter)
+
+        val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, null, null, timeOfSubmitting)
+
+        assertEquals(1, filteredFeedbacks.size)
+        assertTrue(filteredFeedbacks.all { it.timeOfSubmitting.isEqual(timeOfSubmitting) })
+
+        verify(feedbackDao).filterFeedbacks(filter)
     }
 
 }
