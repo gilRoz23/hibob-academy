@@ -51,13 +51,13 @@ class SessionEmployeeService(private val companyDao: CompanyDao, private val emp
 
     fun getEmployee(firstname: String, lastname: String, companyId: Long): EmployeeData {
         val employeeData = employeeDao.getEmployee(firstname, lastname, companyId)
-            ?: throw IllegalArgumentException("Employee not found for firstname: $firstname, lastname: $lastname, companyId: $companyId")
+            ?: throw NoSuchElementException("invalid firstname or lastname or company name.")
         return employeeData
     }
 
     fun getCompanyByName(companyName: String): CompanyData {
         val companyData = companyDao.getCompanyByName(companyName)
-            ?: throw NoSuchElementException("No company found with name: $companyName")
+            ?: throw NoSuchElementException("invalid firstname or lastname or company name.")
         return companyData
     }
 }
