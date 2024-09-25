@@ -39,7 +39,7 @@ class FeedbackResource(private val feedbackService: FeedbackService) {
             feedbackRequest.department
         )
 
-        return Response.ok("Feedback submitted successfully").build()
+        return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build();
     }
 }
 
