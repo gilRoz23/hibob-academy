@@ -42,6 +42,16 @@ data class CompanyData(
 )
 
 
+data class FeedbackFilter(
+    val companyId: Long,
+    val isAnonymous: Boolean? = null,
+    val status: Boolean? = null,
+    val feedbackProviderId: Long? = null,
+    val department: Department? = null,
+    val timeOfSubmitting: LocalDateTime? = null
+)
+
+
 data class FeedbackRequest(
     val content: String,
     val isAnonymous: Boolean,

@@ -61,7 +61,7 @@ class FeedbackDao(private val sql: DSLContext) {
 
     fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
         val conditions = listOfNotNull(
-            filter.companyId?.let { feedbackTable.companyId.eq(it) },
+            feedbackTable.companyId.eq(filter.companyId),
             filter.isAnonymous?.let { feedbackTable.isAnonymous.eq(it) },
             filter.status?.let { feedbackTable.status.eq(it) },
             filter.feedbackProviderId?.let { feedbackTable.feedbackProviderId.eq(it) },
@@ -73,31 +73,14 @@ class FeedbackDao(private val sql: DSLContext) {
             }
         )
 
-        // Building the query
         val query = sql.selectFrom(feedbackTable)
 
-        // Apply conditions only if there are any
         if (conditions.isNotEmpty()) {
             query.where(conditions.reduce(Condition::and))
         }
 
-        // Add the order by clause regardless of filters
         query.orderBy(feedbackTable.timeOfSubmitting.desc())
 
-        // Fetch and return the result
         return query.fetch(feedbackMapper)
     }
-
-}
-
-
-
-    data class FeedbackFilter(
-        val companyId: Long? = null,
-        val isAnonymous: Boolean? = null,
-        val status: Boolean? = null,
-        val feedbackProviderId: Long? = null,
-        val department: Department? = null,
-        val timeOfSubmitting: LocalDateTime? = null
-    )
 }
