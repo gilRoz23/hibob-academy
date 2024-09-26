@@ -27,26 +27,13 @@ class FeedbackDao(private val sql: DSLContext) {
     }
 
 
-    fun insertFeedback(companyId: Long, content: String, isAnonymous: Boolean, feedbackProviderId: Long?, department: Department): Long {
-        return sql.insertInto(feedbackTable)
-            .set(feedbackTable.companyId, companyId)
-            .set(feedbackTable.content, content)
-            .set(feedbackTable.isAnonymous, isAnonymous)
-            .set(feedbackTable.status, false)
-            .set(feedbackTable.feedbackProviderId, feedbackProviderId)
-            .set(feedbackTable.department, department.name)
-            .set(feedbackTable.timeOfSubmitting, LocalDateTime.now())
-            .returning(feedbackTable.id)
-            .fetchOne()!![feedbackTable.id]
-    }
-
-    fun insertFeedbackWithDate(
+    fun insertFeedback(
         companyId: Long,
         content: String,
         isAnonymous: Boolean,
         feedbackProviderId: Long?,
         department: Department,
-        timeOfSubmitting: LocalDateTime // New parameter
+        timeOfSubmitting: LocalDateTime
     ): Long {
         return sql.insertInto(feedbackTable)
             .set(feedbackTable.companyId, companyId)
