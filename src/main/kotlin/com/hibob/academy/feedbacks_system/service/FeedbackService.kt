@@ -64,7 +64,14 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
             throw IllegalArgumentException("Feedback does not exist.")
     }
 
-    fun getFeedbackStatus(feedbackId: Long): Boolean? {
-        return feedbackDao.getFeedbackStatus(feedbackId)?:throw IllegalArgumentException("Feedback does not exist.")
+    fun getFeedbackStatus(feedbackId: Long, feedbackProviderId: Long): Boolean {
+        val statusData = feedbackDao.getFeedbackStatus(feedbackId)
+            ?: throw IllegalArgumentException("Feedback does not exist.")
+
+        return if (statusData.feedbackProviderId != feedbackProviderId) {
+            throw IllegalArgumentException("Access denied.")
+        } else {
+            statusData.status
+        }
     }
 }
