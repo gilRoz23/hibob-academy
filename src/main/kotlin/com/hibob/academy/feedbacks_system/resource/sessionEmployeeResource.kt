@@ -1,5 +1,6 @@
 package com.hibob.academy.feedbacks_system.resource
 
+import com.hibob.academy.feedbacks_system.JWTDetails
 import com.hibob.academy.feedbacks_system.service.SessionEmployeeService
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST

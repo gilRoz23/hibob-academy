@@ -40,3 +40,19 @@ data class CompanyData(
     val id: Long,
     val name: String
 )
+
+
+data class FeedbackRequest(
+    val content: String,
+    val isAnonymous: Boolean,
+    val department: Department
+)
+
+data class JWTDetails(val firstname: String, val lastname: String, val companyName: String)
+
+enum class Role{
+    MANAGER,
+    ADMIN,
+    HR,
+    EMPLOYEE
+}

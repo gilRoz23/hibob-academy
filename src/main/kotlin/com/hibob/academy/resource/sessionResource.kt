@@ -1,5 +1,6 @@
-package com.hibob.academy.service
-import com.hibob.academy.resource.JWTDetails
+package com.hibob.academy.resource
+
+import com.hibob.academy.service.SessionService
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST

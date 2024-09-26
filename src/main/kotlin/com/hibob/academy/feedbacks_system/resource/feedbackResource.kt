@@ -1,7 +1,8 @@
 package com.hibob.academy.feedbacks_system.resource
 
 import PermissionService
-import com.hibob.academy.feedbacks_system.Department
+import com.hibob.academy.feedbacks_system.FeedbackRequest
+import com.hibob.academy.feedbacks_system.Role
 import com.hibob.academy.feedbacks_system.service.FeedbackService
 import jakarta.ws.rs.*
 import jakarta.ws.rs.container.ContainerRequestContext
@@ -50,7 +51,7 @@ class FeedbackResource(
 
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
 
-        if (permissionService.validatePermission(role, listOf(PermissionService.Role.HR, PermissionService.Role.ADMIN))) {
+        if (permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))) {
             val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
             companyId?.let {
@@ -61,9 +62,3 @@ class FeedbackResource(
         }
     }
 }
-
-data class FeedbackRequest(
-    val content: String,
-    val isAnonymous: Boolean,
-    val department: Department
-)
