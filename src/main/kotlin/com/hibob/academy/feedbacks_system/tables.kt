@@ -40,3 +40,17 @@ class CompanyTable(tableName : String = "company") : JooqTable(tableName) {
         val instance = CompanyTable()
     }
 }
+
+;class ResponseTable(tableName : String = "feedback") : JooqTable(tableName) {
+    val id = createBigIntField("id")
+    val companyId = createBigIntField("company_id")
+    val feedbackId = createBigIntField("feedback_id")
+    val content = createVarcharField("content")
+    val responserId = createBigIntField("responser_id")
+    val timeOfResponding = createLocalDateTimeField("time_of_responsing")
+
+
+    companion object{
+        val instance = FeedbackTable()
+    }
+}
