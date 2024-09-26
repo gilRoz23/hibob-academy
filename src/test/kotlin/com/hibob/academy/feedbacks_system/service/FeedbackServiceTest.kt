@@ -3,7 +3,6 @@ package com.hibob.academy.feedbacks_system.service
 import com.hibob.academy.feedbacks_system.Department
 import com.hibob.academy.feedbacks_system.FeedbackDao
 import com.hibob.academy.feedbacks_system.FeedbackData
-import org.jooq.impl.DSL.every
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -12,6 +11,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 import kotlin.random.Random
+import com.hibob.academy.feedbacks_system.FeedbackFilter
 
 class FeedbackServiceTest {
     private var feedbackDao: FeedbackDao = mock(FeedbackDao::class.java)
@@ -143,7 +143,7 @@ class FeedbackServiceTest {
             )
 
 
-        val filter = FeedbackDao.FeedbackFilter(companyId, true, null, null, null, null)
+        val filter = FeedbackFilter(companyId, true, null, null, null, null)
         doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
 
         val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, isAnonymous, null, null, null, null)
@@ -185,7 +185,7 @@ class FeedbackServiceTest {
             timeOfSubmitting = timeOfSubmitting
         )
 
-        val filter = FeedbackDao.FeedbackFilter(companyId, null, true, null, null, null)
+        val filter = FeedbackFilter(companyId, null, true, null, null, null)
         doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
 
         val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, true, null, null, null)
@@ -227,7 +227,7 @@ class FeedbackServiceTest {
             timeOfSubmitting = timeOfSubmitting
         )
 
-        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, feedbackProviderId, null, null)
+        val filter = FeedbackFilter(companyId, null, null, feedbackProviderId, null, null)
         doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
 
         val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, feedbackProviderId, null, null)
@@ -268,7 +268,7 @@ class FeedbackServiceTest {
             timeOfSubmitting = timeOfSubmitting
         )
 
-        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, null, department, null)
+        val filter = FeedbackFilter(companyId, null, null, null, department, null)
         doReturn(listOf(feedbackData1)).whenever(feedbackDao).filterFeedbacks(filter)
 
         val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, null, department, null)
@@ -309,7 +309,7 @@ class FeedbackServiceTest {
             timeOfSubmitting = timeOfSubmitting
         )
 
-        val filter = FeedbackDao.FeedbackFilter(companyId, null, null, null, null, timeOfSubmitting)
+        val filter = FeedbackFilter(companyId, null, null, null, null, timeOfSubmitting)
         doReturn(listOf(feedbackData2)).whenever(feedbackDao).filterFeedbacks(filter)
 
         val filteredFeedbacks = feedbackService.filterFeedbacks(companyId, null, null, null, null, timeOfSubmitting)
@@ -319,5 +319,4 @@ class FeedbackServiceTest {
 
         verify(feedbackDao).filterFeedbacks(filter)
     }
-
 }
