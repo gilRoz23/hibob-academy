@@ -69,14 +69,14 @@ class FeedbackResource(
         val permissionService = PermissionService()
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
 
-        return if (permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))) {
+        if (!permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))) {
+
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+        }
             val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
             companyId?.let {
-                Response.ok(feedbackService.filterFeedbacks(it, feedbackData.isAnonymous, feedbackData.status, feedbackData.feedbackProviderId, feedbackData.department, feedbackData.timeOfSubmitting)).build()
-            } ?: Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
-        } else {
-            Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
-        }
+                return Response.ok(feedbackService.filterFeedbacks(it, feedbackData.isAnonymous, feedbackData.status, feedbackData.feedbackProviderId, feedbackData.department, feedbackData.timeOfSubmitting)).build()
+            } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
     }
 }
