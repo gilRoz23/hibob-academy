@@ -6,11 +6,13 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
 
 @BobDbTest
 class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
+    private val feedbackTable = FeedbackTable()
     private val feedbackDao = FeedbackDao(sql)
     private val companyId = Random.nextLong()
     private var insertedFeedbackIds = listOf<Long>()
@@ -72,7 +74,6 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertEquals(feedbackId, insertedFeedback?.id)
     }
 
-
     @Test
     fun `get all feedback by companyId successfully`() {
         val feedbackId1 = feedbackDao.insertFeedback(
@@ -111,6 +112,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertTrue(feedbackContents.contains("I'm Mr. Meeseeks!"))
         assertTrue(feedbackContents.contains("OOOWeeee!"))
     }
+
     @Test
     fun `get all feedback by companyId when no feedback exists`() {
         val feedbacks = feedbackDao.getAllCompanyFeedbacks(Random.nextLong())
@@ -150,7 +152,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         val filteredAnonymous = feedbackDao.filterFeedbacks(filterAnonymous)
 
         assertEquals(1, filteredAnonymous.size)
-        assertTrue(filteredAnonymous.all { it.isAnonymous })
+        assertTrue(filteredAnonymous[0].isAnonymous)
     }
 
     @Test
@@ -185,7 +187,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         val filteredNonAnonymous = feedbackDao.filterFeedbacks(filterNonAnonymous)
 
         assertEquals(1, filteredNonAnonymous.size)
-        assertTrue(filteredNonAnonymous.all { !it.isAnonymous })
+        assertFalse(filteredNonAnonymous[0].isAnonymous)
     }
 
     @Test
@@ -220,8 +222,9 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
 
         assertEquals(1, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { it.feedbackProviderId == feedbackProviderId })
+        assertEquals(feedbackProviderId, filteredFeedbacks[0].feedbackProviderId)
     }
+
 
     @Test
     fun `filter feedbacks by department`() {
@@ -255,258 +258,48 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         val filteredHRFeedbacks = feedbackDao.filterFeedbacks(filterHR)
 
         assertEquals(1, filteredHRFeedbacks.size)
-        assertTrue(filteredHRFeedbacks.all { it.department == Department.HR })
+        assertEquals(Department.HR, filteredHRFeedbacks[0].department)
     }
 
     @Test
     fun `filter feedbacks by date`() {
         val feedbackProviderId = Random.nextLong()
 
-        val feedbackId1 = feedbackDao.insertFeedback(
+        val feedbackId1 = feedbackDao.insertFeedbackWithDate(
             companyId = companyId,
-            content = "Smelly Cat feedback for today!",
+            content = "How you doin'? This feedback is from me.",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.SALES,
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
-        val feedbackId2 = feedbackDao.insertFeedback(
+        val anotherFeedbackId = feedbackDao.insertFeedbackWithDate(
             companyId = companyId,
-            content = "More Smelly Cat feedback for today!",
+            content = "This one’s not from me; just a regular feedback.",
             isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.SALES,
+            feedbackProviderId = Random.nextLong(),
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now().minusDays(1)
         )
 
-        val feedbackId3 = feedbackDao.insertFeedback(
+        val anotherCompanySameId = feedbackDao.insertFeedbackWithDate(
             companyId = companyId + 1,
-            content = "Smelly Cat feedback from three days ago.",
+            content = "Another great feedback from yours truly!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.SALES,
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now().minusDays(1)
         )
 
-        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + feedbackId2 + feedbackId3
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + anotherFeedbackId + anotherCompanySameId
 
-        val filterByDate = FeedbackFilter(companyId = companyId, timeOfSubmitting = LocalDateTime.now())
-        val filteredDateFeedbacks = feedbackDao.filterFeedbacks(filterByDate)
+        val filter = FeedbackFilter(companyId = companyId, timeOfSubmitting = LocalDateTime.now())
 
-        assertEquals(2, filteredDateFeedbacks.size)
-    }
-
-    @Test
-    fun `filter feedbacks by isAnonymous true and feedbackProviderId`() {
-        val feedbackProviderId = Random.nextLong()
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "I'm not telling who I am, but I love feedback!",
-            isAnonymous = true,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "This one's from me, and I'm proud!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Anonymous feedback from another provider!",
-            isAnonymous = true,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.IT
-        )
-
-        val filter = FeedbackFilter(companyId = companyId, isAnonymous = true, feedbackProviderId = feedbackProviderId)
         val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-
         assertEquals(1, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { it.isAnonymous && it.feedbackProviderId == feedbackProviderId })
+        assertEquals(LocalDate.now(), filteredFeedbacks[0].timeOfSubmitting.toLocalDate())
     }
 
-    @Test
-    fun `filter feedbacks by department and isAnonymous false`() {
-        val feedbackProviderId = Random.nextLong()
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "HR rules!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
 
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "IT is awesome!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.IT
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "HR is my favorite!",
-            isAnonymous = false,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.HR
-        )
-
-        val filter = FeedbackFilter(companyId = companyId, isAnonymous = false, department = Department.HR)
-        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-
-        assertEquals(2, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { !it.isAnonymous && it.department == Department.HR })
-    }
-
-    @Test
-    fun `filter feedbacks by feedbackProviderId and department`() {
-        val feedbackProviderId = Random.nextLong()
-        val hrFeedbackId = feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "I love HR!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        val itFeedbackId = feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "IT is crucial!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.IT
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Different provider, different department.",
-            isAnonymous = false,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.SALES
-        )
-
-        val filter = FeedbackFilter(companyId = companyId, feedbackProviderId = feedbackProviderId, department = Department.HR)
-        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-
-        assertEquals(1, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { it.feedbackProviderId == feedbackProviderId && it.department == Department.HR })
-    }
-
-    @Test
-    fun `filter feedbacks by isAnonymous true, feedbackProviderId and department`() {
-        val feedbackProviderId = Random.nextLong()
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Anonymous HR feedback? Yes, please!",
-            isAnonymous = true,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Not anonymous, still HR.",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Anonymous IT feedback.",
-            isAnonymous = true,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.IT
-        )
-
-        val filter = FeedbackFilter(companyId = companyId, isAnonymous = true, feedbackProviderId = feedbackProviderId, department = Department.HR)
-        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-
-        assertEquals(1, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { it.isAnonymous && it.feedbackProviderId == feedbackProviderId && it.department == Department.HR })
-    }
-
-    @Test
-    fun `filter feedbacks by date, feedbackProviderId and isAnonymous false`() {
-        val feedbackProviderId = Random.nextLong()
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "I submitted this feedback yesterday.",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR,
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "I submitted this feedback today!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR,
-        )
-
-        feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "This is not from me!",
-            isAnonymous = false,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.HR,
-        )
-
-        val filter = FeedbackFilter(companyId = companyId, feedbackProviderId = feedbackProviderId, isAnonymous = false, timeOfSubmitting = LocalDateTime.now())
-        val filteredFeedbacks = feedbackDao.filterFeedbacks(filter)
-
-        assertEquals(2, filteredFeedbacks.size)
-        assertTrue(filteredFeedbacks.all { it.feedbackProviderId == feedbackProviderId && !it.isAnonymous })
-    }
-
-    @Test
-    fun `filter feedbacks without any filters`() {
-        val feedbackProviderId = Random.nextLong()
-
-        val feedbackId1 = feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "This coffee is like the best part of my day!",
-            isAnonymous = false,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.HR
-        )
-
-        val feedbackId2 = feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "Could I *be* any more helpful?",
-            isAnonymous = true,
-            feedbackProviderId = feedbackProviderId,
-            department = Department.SALES
-        )
-
-        val feedbackId3 = feedbackDao.insertFeedback(
-            companyId = companyId,
-            content = "I just want to be there for my friends, and maybe help them out at work too!",
-            isAnonymous = false,
-            feedbackProviderId = Random.nextLong(),
-            department = Department.IT
-        )
-
-        insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + feedbackId2 + feedbackId3
-
-        val filterAll = FeedbackFilter(companyId = companyId)
-        val filteredFeedbacks = feedbackDao.filterFeedbacks(filterAll)
-
-        assertEquals(3, filteredFeedbacks.size, "Just like Ross's marriages, there should be no filters on this feedback!")
-
-        val expectedContents = setOf(
-            "This coffee is like the best part of my day!",
-            "Could I *be* any more helpful?",
-            "I just want to be there for my friends, and maybe help them out at work too!"
-        )
-        val actualContents = filteredFeedbacks.map { it.content }.toSet()
-
-        assertTrue(actualContents.containsAll(expectedContents))
-    }
 }

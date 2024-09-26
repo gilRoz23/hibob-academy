@@ -40,6 +40,27 @@ class FeedbackDao(private val sql: DSLContext) {
             .fetchOne()!![feedbackTable.id]
     }
 
+    fun insertFeedbackWithDate(
+        companyId: Long,
+        content: String,
+        isAnonymous: Boolean,
+        feedbackProviderId: Long?,
+        department: Department,
+        timeOfSubmitting: LocalDateTime // New parameter
+    ): Long {
+        return sql.insertInto(feedbackTable)
+            .set(feedbackTable.companyId, companyId)
+            .set(feedbackTable.content, content)
+            .set(feedbackTable.isAnonymous, isAnonymous)
+            .set(feedbackTable.status, false)
+            .set(feedbackTable.feedbackProviderId, feedbackProviderId)
+            .set(feedbackTable.department, department.name)
+            .set(feedbackTable.timeOfSubmitting, timeOfSubmitting)
+            .returning(feedbackTable.id)
+            .fetchOne()!![feedbackTable.id]
+    }
+
+
     fun deleteFeedback(feedbackId: Long): Int {
         return sql.deleteFrom(feedbackTable)
             .where(feedbackTable.id.eq(feedbackId))
