@@ -48,17 +48,13 @@ class FeedbackResource(
     @Path("/get-all-feedbacks")
     fun getAllFeedbacks(@Context requestContext: ContainerRequestContext): Response {
         val permissionService = PermissionService()
-
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
+        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
-        if (permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))) {
-            val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-
-            companyId?.let {
-                return Response.ok(feedbackService.getAllCompanyFeedbacks(it)).build()
-            } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
-        } else {
-            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
-        }
+        companyId?.takeIf {
+            permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))
+        }?.let {
+            return Response.ok(feedbackService.getAllCompanyFeedbacks(it)).build()
+        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
     }
 }
