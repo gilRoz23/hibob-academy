@@ -25,7 +25,7 @@ class SessionEmployeeResource(private val sessionEmployeeService: SessionEmploye
     fun createJwtToken(jwtDet: JWTDetails): Response {
         return try {
             val token = sessionEmployeeService.createJwtToken(jwtDet)
-            Response.ok()
+            Response.ok("User logged in")
                 .cookie(NewCookie.Builder(COOKIE_NAME).value(token).build())
                 .build()
         } catch (e: Exception) {
