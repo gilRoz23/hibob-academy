@@ -1,5 +1,6 @@
 package com.hibob.academy.feedbacks_system
 
+import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.RecordMapper
 import org.springframework.stereotype.Component
@@ -59,23 +60,35 @@ class FeedbackDao(private val sql: DSLContext) {
 
 
     fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
-        return sql.selectFrom(feedbackTable).apply {
-            filter.companyId?.let { where(feedbackTable.companyId.eq(it)) }
-            filter.isAnonymous?.let { where(feedbackTable.isAnonymous.eq(it)) }
-            filter.status?.let { where(feedbackTable.status.eq(it)) }
-            filter.feedbackProviderId?.let { where(feedbackTable.feedbackProviderId.eq(it)) }
-            filter.department?.let { where(feedbackTable.department.eq(it.name)) }
-
+        val conditions = listOfNotNull(
+            filter.companyId?.let { feedbackTable.companyId.eq(it) },
+            filter.isAnonymous?.let { feedbackTable.isAnonymous.eq(it) },
+            filter.status?.let { feedbackTable.status.eq(it) },
+            filter.feedbackProviderId?.let { feedbackTable.feedbackProviderId.eq(it) },
+            filter.department?.let { feedbackTable.department.eq(it.name) },
             filter.timeOfSubmitting?.let { time ->
                 val dateToCompare = time.toLocalDate()
                 val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
-
-                where(dateField.ge(dateToCompare))
-
-                orderBy(feedbackTable.timeOfSubmitting.desc())
+                dateField.ge(dateToCompare)
             }
-        }.fetch(feedbackMapper)
+        )
+
+        // Building the query
+        val query = sql.selectFrom(feedbackTable)
+
+        // Apply conditions only if there are any
+        if (conditions.isNotEmpty()) {
+            query.where(conditions.reduce(Condition::and))
+        }
+
+        // Add the order by clause regardless of filters
+        query.orderBy(feedbackTable.timeOfSubmitting.desc())
+
+        // Fetch and return the result
+        return query.fetch(feedbackMapper)
     }
+
+}
 
 
 
