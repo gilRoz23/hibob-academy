@@ -320,5 +320,62 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertEquals(LocalDate.now(), filteredFeedbacks[0].timeOfSubmitting.toLocalDate())
     }
 
+    @Test
+    fun `switch feedback status successfully`() {
+        val feedbackProviderId = Random.nextLong()
+        val feedbackId = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "This feedback will be switched!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
+        )
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
+        val rowsAffected = feedbackDao.switchFeedbackStatus(feedbackId)
+
+        assertEquals(1, rowsAffected)
+
+        val updatedStatus = feedbackDao.getFeedbackStatus(feedbackId)
+        assertNotNull(updatedStatus)
+        assertTrue(updatedStatus == true)
+    }
+
+    @Test
+    fun `switch feedback status for non-existing feedback ID`() {
+        val nonExistingFeedbackId = Random.nextLong()
+
+        val rowsAffected = feedbackDao.switchFeedbackStatus(nonExistingFeedbackId)
+
+        assertEquals(0, rowsAffected)
+    }
+
+    @Test
+    fun `get feedback status successfully`() {
+        val feedbackProviderId = Random.nextLong()
+        val feedbackId = feedbackDao.insertFeedback(
+            companyId = companyId,
+            content = "Checking status!",
+            isAnonymous = false,
+            feedbackProviderId = feedbackProviderId,
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
+        )
+        insertedFeedbackIds = insertedFeedbackIds + feedbackId
+
+        val status = feedbackDao.getFeedbackStatus(feedbackId)
+
+        assertNotNull(status)
+        assertFalse(status!!)
+    }
+
+    @Test
+    fun `get feedback status for non-existing feedback ID`() {
+        val nonExistingFeedbackId = Random.nextLong()
+
+        val status = feedbackDao.getFeedbackStatus(nonExistingFeedbackId)
+
+        assertNull(status)
+    }
 }

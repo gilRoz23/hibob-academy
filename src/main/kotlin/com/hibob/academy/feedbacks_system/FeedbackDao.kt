@@ -92,4 +92,18 @@ class FeedbackDao(private val sql: DSLContext) {
 
         return query.fetch(feedbackMapper)
     }
+
+    fun switchFeedbackStatus(feedbackId: Long): Int {
+        return sql.update(feedbackTable)
+            .set(feedbackTable.status, DSL.not(feedbackTable.status))
+            .where(feedbackTable.id.eq(feedbackId))
+            .execute()
+    }
+
+    fun getFeedbackStatus(feedbackId: Long): Boolean? {
+        return sql.select(feedbackTable.status)
+            .from(feedbackTable)
+            .where(feedbackTable.id.eq(feedbackId))
+            .fetchOne(feedbackTable.status)
+    }
 }
