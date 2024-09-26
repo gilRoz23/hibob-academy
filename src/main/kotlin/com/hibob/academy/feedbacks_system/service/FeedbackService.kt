@@ -40,7 +40,12 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
     }
 
     fun filterFeedbacks(companyId: Long, userFeedbackFilter: UserFeedbackFilter): List<FeedbackData> {
-        val filter = FeedbackFilter(companyId, userFeedbackFilter.isAnonymous, userFeedbackFilter.status, userFeedbackFilter.feedbackProviderId, userFeedbackFilter.department, userFeedbackFilter.timeOfSubmitting)
+        val filter = FeedbackFilter(companyId,
+            userFeedbackFilter.isAnonymous,
+            userFeedbackFilter.status,
+            userFeedbackFilter.feedbackProviderId,
+            userFeedbackFilter.department,
+            userFeedbackFilter.timeOfSubmitting)
         return feedbackDao.filterFeedbacks(filter)
     }
 }
