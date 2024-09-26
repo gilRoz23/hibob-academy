@@ -1,10 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
+import com.hibob.academy.feedbacks_system.*
 import org.springframework.stereotype.Component
-import com.hibob.academy.feedbacks_system.Department
-import com.hibob.academy.feedbacks_system.FeedbackDao
-import com.hibob.academy.feedbacks_system.FeedbackData
-import com.hibob.academy.feedbacks_system.FeedbackFilter
 import java.time.LocalDateTime
 
 @Component
@@ -42,8 +39,8 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
         return feedbackDao.getAllCompanyFeedbacks(companyId)
     }
 
-    fun filterFeedbacks(companyId: Long, isAnonymous: Boolean?, status: Boolean?, feedbackProviderId: Long?, department: Department?, timeOffSubmitting: LocalDateTime?): List<FeedbackData> {
-        val filter = FeedbackFilter(companyId, isAnonymous, status, feedbackProviderId, department, timeOffSubmitting)
+    fun filterFeedbacks(companyId: Long, userFeedbackFilter: UserFeedbackFilter): List<FeedbackData> {
+        val filter = FeedbackFilter(companyId, userFeedbackFilter.isAnonymous, userFeedbackFilter.status, userFeedbackFilter.feedbackProviderId, userFeedbackFilter.department, userFeedbackFilter.timeOfSubmitting)
         return feedbackDao.filterFeedbacks(filter)
     }
 }

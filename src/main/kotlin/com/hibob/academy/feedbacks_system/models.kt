@@ -51,6 +51,14 @@ data class FeedbackFilter(
     val timeOfSubmitting: LocalDateTime? = null
 )
 
+data class UserFeedbackFilter(
+    val isAnonymous: Boolean? = null,
+    val status: Boolean? = null,
+    val feedbackProviderId: Long? = null,
+    val department: Department? = null,
+    val timeOfSubmitting: LocalDateTime? = null
+)
+
 
 data class FeedbackRequest(
     val content: String,
