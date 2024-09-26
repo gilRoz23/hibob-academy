@@ -1,6 +1,7 @@
 package com.hibob.academy.feedbacks_system.resource
 
 import PermissionService
+import com.hibob.academy.feedbacks_system.FeedbackData
 import com.hibob.academy.feedbacks_system.FeedbackRequest
 import com.hibob.academy.feedbacks_system.Role
 import com.hibob.academy.feedbacks_system.service.FeedbackService
@@ -66,9 +67,9 @@ class FeedbackResource(
     @Path("/filter-feedbacks")
     fun filterFeedbacks(@Context requestContext: ContainerRequestContext, feedbackData: FeedbackData): Response {
         val permissionService = PermissionService()
-        val permissions = permissionService.returnPermissions(requestContext)
+        val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
 
-        return if (permissions.contains(PermissionService.Permission.FEEDBACK_VIEWING)) {
+        return if (permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))) {
             val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
             companyId?.let {
