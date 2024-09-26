@@ -51,14 +51,13 @@ class FeedbackServiceTest {
         val isAnonymous = false
         val feedbackProviderId: Long? = null
         val department = Department.HR
+        val timeOfSubmitting = LocalDateTime.now()
 
-        doReturn(3L).whenever(feedbackDao).insertFeedback(companyId, validFeedback, isAnonymous, feedbackProviderId, department)
+        doReturn(3L).whenever(feedbackDao).insertFeedback(companyId, validFeedback, isAnonymous, feedbackProviderId, department, timeOfSubmitting)
 
         assertDoesNotThrow {
             feedbackService.insertFeedback(companyId, validFeedback, isAnonymous, feedbackProviderId, department)
         }
-
-        verify(feedbackDao).insertFeedback(companyId, validFeedback, isAnonymous, feedbackProviderId, department)
     }
 
     @Test

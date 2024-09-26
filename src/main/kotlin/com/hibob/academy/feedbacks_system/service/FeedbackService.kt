@@ -20,7 +20,7 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
     fun insertFeedback(companyId: Long, content: String, isAnonymous: Boolean, feedbackProviderId: Long?, department: Department) {
         validateLength(content)
         validateContent(content)
-        feedbackDao.insertFeedback(companyId, content, isAnonymous, feedbackProviderId, department)
+        feedbackDao.insertFeedback(companyId, content, isAnonymous, feedbackProviderId, department, LocalDateTime.now())
     }
 
     private fun validateLength(content: String) {

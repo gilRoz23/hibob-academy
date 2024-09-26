@@ -32,7 +32,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Great work on the last project!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
         insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
@@ -56,7 +57,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Someone doesn't flush the toilet consistently!",
             isAnonymous = true,
             feedbackProviderId = null,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
         insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
@@ -80,14 +82,16 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "I'm Mr. Meeseeks!",
             isAnonymous = false,
             feedbackProviderId = Random.nextLong(),
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
         val feedbackId2 = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "OOOWeeee!",
             isAnonymous = true,
             feedbackProviderId = Random.nextLong(),
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val differentCompanyId = Random.nextLong()
@@ -96,7 +100,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Rick Sanchez, I'm in",
             isAnonymous = false,
             feedbackProviderId = Random.nextLong(),
-            department = Department.SALES
+            department = Department.SALES,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         insertedFeedbackIds = insertedFeedbackIds + listOf(feedbackId1, feedbackId2, feedbackId3)
@@ -127,7 +132,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Could this BE any more anonymous?",
             isAnonymous = true,
             feedbackProviderId = feedbackProviderId,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val nonAnonymousFeedbackIdCompany1 = feedbackDao.insertFeedback(
@@ -135,7 +141,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Look at me, I'm not anonymous!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val anotherAnonymousFeedbackId = feedbackDao.insertFeedback(
@@ -143,7 +150,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "I’ll never tell who I am.",
             isAnonymous = true,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
         insertedFeedbackIds = insertedFeedbackIds + anotherAnonymousFeedbackId
 
@@ -162,7 +170,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "This is a secret! Shhh!",
             isAnonymous = true,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val nonAnonymousFeedbackIdCompany1 = feedbackDao.insertFeedback(
@@ -170,7 +179,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "I want everyone to know my opinion!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val anotherNonAnonymousFeedbackId = feedbackDao.insertFeedback(
@@ -178,7 +188,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "This feedback is not a secret!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
         insertedFeedbackIds = insertedFeedbackIds + anonymousFeedbackIdCompany1 + nonAnonymousFeedbackIdCompany1 + anotherNonAnonymousFeedbackId
 
@@ -197,7 +208,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "How you doin'? This feedback is from me.",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val anotherFeedbackId = feedbackDao.insertFeedback(
@@ -205,7 +217,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "This one’s not from me; just a regular feedback.",
             isAnonymous = false,
             feedbackProviderId = Random.nextLong(),
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now()
         )
 
         val anotherCompanySameId = feedbackDao.insertFeedback(
@@ -213,7 +226,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "Another great feedback from yours truly!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now()
         )
         insertedFeedbackIds = insertedFeedbackIds + feedbackId1 + anotherFeedbackId + anotherCompanySameId
 
@@ -228,12 +242,14 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
     @Test
     fun `filter feedbacks by department`() {
         val feedbackProviderId = Random.nextLong()
+
         val feedbackIdHR = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "HR is the best department. Period.",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now() // time of submitting added
         )
 
         val anotherFeedbackId = feedbackDao.insertFeedback(
@@ -241,7 +257,8 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "IT feedback is also important!",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.IT
+            department = Department.IT,
+            timeOfSubmitting = LocalDateTime.now() // time of submitting added
         )
 
         val yetAnotherFeedbackId = feedbackDao.insertFeedback(
@@ -249,8 +266,10 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             content = "More HR feedback, because why not?",
             isAnonymous = false,
             feedbackProviderId = feedbackProviderId,
-            department = Department.HR
+            department = Department.HR,
+            timeOfSubmitting = LocalDateTime.now() // time of submitting added
         )
+
         insertedFeedbackIds = insertedFeedbackIds + feedbackIdHR + anotherFeedbackId + yetAnotherFeedbackId
 
         val filterHR = FeedbackFilter(companyId = companyId, department = Department.HR)
@@ -260,11 +279,12 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         assertEquals(Department.HR, filteredHRFeedbacks[0].department)
     }
 
+
     @Test
     fun `filter feedbacks by date`() {
         val feedbackProviderId = Random.nextLong()
 
-        val feedbackId1 = feedbackDao.insertFeedbackWithDate(
+        val feedbackId1 = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "How you doin'? This feedback is from me.",
             isAnonymous = false,
@@ -273,7 +293,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             timeOfSubmitting = LocalDateTime.now()
         )
 
-        val anotherFeedbackId = feedbackDao.insertFeedbackWithDate(
+        val anotherFeedbackId = feedbackDao.insertFeedback(
             companyId = companyId,
             content = "This one’s not from me; just a regular feedback.",
             isAnonymous = false,
@@ -282,7 +302,7 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
             timeOfSubmitting = LocalDateTime.now().minusDays(1)
         )
 
-        val anotherCompanySameId = feedbackDao.insertFeedbackWithDate(
+        val anotherCompanySameId = feedbackDao.insertFeedback(
             companyId = companyId + 1,
             content = "Another great feedback from yours truly!",
             isAnonymous = false,
