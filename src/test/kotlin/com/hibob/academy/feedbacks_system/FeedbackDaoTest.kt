@@ -337,9 +337,9 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
 
         assertEquals(1, rowsAffected)
 
-        val updatedStatus = feedbackDao.getFeedbackStatus(feedbackId)
-        assertNotNull(updatedStatus)
-        assertTrue(updatedStatus == true)
+        val updatedStatusData = feedbackDao.getFeedbackStatus(feedbackId)
+        assertNotNull(updatedStatusData)
+        assertTrue(updatedStatusData!!.status)
     }
 
     @Test
@@ -364,10 +364,11 @@ class FeedbackDaoTest @Autowired constructor(private val sql: DSLContext) {
         )
         insertedFeedbackIds = insertedFeedbackIds + feedbackId
 
-        val status = feedbackDao.getFeedbackStatus(feedbackId)
+        val statusData = feedbackDao.getFeedbackStatus(feedbackId)
 
-        assertNotNull(status)
-        assertFalse(status!!)
+        assertNotNull(statusData)
+        assertFalse(statusData!!.status)
+        assertEquals(statusData!!.feedbackProviderId, feedbackProviderId)
     }
 
     @Test

@@ -89,3 +89,8 @@ data class ResponseRequest(
     val content: String,
     val feedbackId: Long
 )
+
+data class StatusData(
+    val status: Boolean,
+    val feedbackProviderId: Long?
+)

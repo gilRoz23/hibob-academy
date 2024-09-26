@@ -26,6 +26,14 @@ class FeedbackDao(private val sql: DSLContext) {
         )
     }
 
+    private val statusMapper = RecordMapper<org.jooq.Record, StatusData> { record ->
+        StatusData(
+            feedbackProviderId = record[feedbackTable.feedbackProviderId],
+            status = record[feedbackTable.status]
+
+        )
+    }
+
 
     fun insertFeedback(
         companyId: Long,
@@ -100,10 +108,10 @@ class FeedbackDao(private val sql: DSLContext) {
             .execute()
     }
 
-    fun getFeedbackStatus(feedbackId: Long): Boolean? {
-        return sql.select(feedbackTable.status)
+    fun getFeedbackStatus(feedbackId: Long): StatusData? {
+        return sql.select(feedbackTable.feedbackProviderId ,feedbackTable.status)
             .from(feedbackTable)
             .where(feedbackTable.id.eq(feedbackId))
-            .fetchOne(feedbackTable.status)
+            .fetchOne(statusMapper)
     }
 }
