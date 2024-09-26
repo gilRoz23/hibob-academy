@@ -4,6 +4,7 @@ import PermissionService
 import com.hibob.academy.feedbacks_system.FeedbackData
 import com.hibob.academy.feedbacks_system.FeedbackRequest
 import com.hibob.academy.feedbacks_system.Role
+import com.hibob.academy.feedbacks_system.UserFeedbackFilter
 import com.hibob.academy.feedbacks_system.service.FeedbackService
 import jakarta.ws.rs.*
 import jakarta.ws.rs.container.ContainerRequestContext
@@ -65,7 +66,7 @@ class FeedbackResource(
 
     @GET
     @Path("/filter-feedbacks")
-    fun filterFeedbacks(@Context requestContext: ContainerRequestContext, feedbackData: FeedbackData): Response {
+    fun filterFeedbacks(@Context requestContext: ContainerRequestContext, userFeedbackFilter: UserFeedbackFilter): Response {
         val permissionService = PermissionService()
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
 
@@ -76,7 +77,7 @@ class FeedbackResource(
             val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
 
             companyId?.let {
-                return Response.ok(feedbackService.filterFeedbacks(it, feedbackData.isAnonymous, feedbackData.status, feedbackData.feedbackProviderId, feedbackData.department, feedbackData.timeOfSubmitting)).build()
+                return Response.ok(feedbackService.filterFeedbacks(it, userFeedbackFilter)).build()
             } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
     }
 }
