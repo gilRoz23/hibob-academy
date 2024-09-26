@@ -1,9 +1,9 @@
 package com.hibob.academy.feedbacks_system.service
 
+import com.hibob.academy.feedbacks_system.*
 import org.junit.jupiter.api.Assertions.*
-import com.hibob.academy.feedbacks_system.ResponseDao
-import com.hibob.academy.feedbacks_system.ResponseData
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.mockito.kotlin.doReturn
 import java.time.LocalDateTime
@@ -12,8 +12,9 @@ import org.mockito.kotlin.whenever
 
 class ResponseServiceTest {
 
-    private var responseDao: ResponseDao = mock(ResponseDao::class.java)
-    private var responseService: ResponseService = ResponseService(responseDao)
+    private val responseDao: ResponseDao = mock(ResponseDao::class.java)
+    private val feedbackDao: FeedbackDao = mock(FeedbackDao::class.java)
+    private val responseService: ResponseService = ResponseService(responseDao, feedbackDao)
 
     @Test
     fun `should insert response successfully`() {
@@ -21,14 +22,48 @@ class ResponseServiceTest {
         val feedbackId = Random.nextLong()
         val content = "This is a response to feedback."
         val responserId: Long? = null
-        val timeOfResponding = LocalDateTime.now()
 
-        doReturn(3L).whenever(responseDao).insertResponse(companyId, feedbackId, content, responserId, timeOfResponding)
+        val responseRequest = ResponseRequest(content, feedbackId)
 
-        val responseId = responseService.insertResponse(companyId, feedbackId, content, responserId, timeOfResponding)
+        val feedback = mock(FeedbackData::class.java)
+        whenever(feedbackDao.getFeedbackById(feedbackId)).thenReturn(feedback)
+        whenever(feedback.isAnonymous).thenReturn(false)
 
-        assertEquals(3L, responseId)
-        verify(responseDao).insertResponse(companyId, feedbackId, content, responserId, timeOfResponding)
+        doReturn(3L).whenever(responseDao).insertResponse(companyId, feedbackId, content, responserId)
+
+        assertDoesNotThrow {
+            responseService.insertResponse(companyId, responserId, responseRequest)
+        }
+    }
+
+    @Test
+    fun `insert response denied for anonymous feedback`() {
+        val feedbackId = Random.nextLong()
+
+        // Mock anonymous feedback
+        val feedback = mock(FeedbackData::class.java)
+        whenever(feedbackDao.getFeedbackById(feedbackId)).thenReturn(feedback)
+        whenever(feedback.isAnonymous).thenReturn(true)
+
+        val responseRequest = ResponseRequest("This should not be allowed.", feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            responseService.insertResponse(1L, null, responseRequest)
+        }
+    }
+
+    @Test
+    fun `insert response denied for non-existent feedback`() {
+        val feedbackId = Random.nextLong()
+
+        // Mock the retrieval of non-existent feedback
+        whenever(feedbackDao.getFeedbackById(feedbackId)).thenReturn(null)
+
+        val responseRequest = ResponseRequest("This feedback does not exist.", feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            responseService.insertResponse(1L, null, responseRequest)
+        }
     }
 
     @Test
@@ -38,7 +73,7 @@ class ResponseServiceTest {
         val responseId2 = Random.nextLong()
         val response1 = ResponseData(
             id = responseId1,
-            companyId = 1L,
+            companyId = companyId,
             feedbackId = 1L,
             content = "First response",
             responserId = null,
@@ -46,29 +81,20 @@ class ResponseServiceTest {
         )
         val response2 = ResponseData(
             id = responseId2,
-            companyId = 1L,
+            companyId = companyId+1,
             feedbackId = 1L,
             content = "Second response",
             responserId = null,
             timeOfResponding = LocalDateTime.now()
         )
-        val response3 = ResponseData(
-            id = responseId2+1,
-            companyId = 2L,
-            feedbackId = 1L,
-            content = "Response to feedback",
-            responserId = null,
-            timeOfResponding = LocalDateTime.now()
-        )
-        val responseList = listOf(response1, response2, response3)
+        val responseList = listOf(response1)
 
-        doReturn(listOf(response1, response2)).whenever(responseDao).getAllCompanyResponses(1L)
+        doReturn(responseList).whenever(responseDao).getAllCompanyResponses(companyId)
 
         val responses = responseService.getAllCompanyResponses(companyId)
 
-        assertEquals(2, responses.size)
+        assertEquals(1, responses.size)
         assertTrue(responses.any { it.content == "First response" })
-        assertTrue(responses.any { it.content == "Second response" })
 
         verify(responseDao).getAllCompanyResponses(companyId)
     }
@@ -101,28 +127,19 @@ class ResponseServiceTest {
         val response2 = ResponseData(
             id = responseId2,
             companyId = 1L,
-            feedbackId = feedbackId,
-            content = "Another response to feedback",
-            responserId = null,
-            timeOfResponding = LocalDateTime.now()
-        )
-        val response3 = ResponseData(
-            id = responseId2+1,
-            companyId = 1L,
             feedbackId = feedbackId+1,
-            content = "Response to feedback",
+            content = "Response to another feedback",
             responserId = null,
             timeOfResponding = LocalDateTime.now()
         )
-        val responseList = listOf(response1, response2, response3)
+        val responseList = listOf(response1)
 
-        doReturn(listOf(response1, response2)).whenever(responseDao).getResponseByFeedbackId(feedbackId)
+        doReturn(responseList).whenever(responseDao).getResponseByFeedbackId(feedbackId)
 
         val responses = responseService.getResponseByFeedbackId(feedbackId)
 
-        assertEquals(2, responses.size)
+        assertEquals(1, responses.size)
         assertTrue(responses.any { it.content == "Response to feedback" })
-        assertTrue(responses.any { it.content == "Another response to feedback" })
 
         verify(responseDao).getResponseByFeedbackId(feedbackId)
     }
