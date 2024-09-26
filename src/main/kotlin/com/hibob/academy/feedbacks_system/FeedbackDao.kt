@@ -1,9 +1,12 @@
 package com.hibob.academy.feedbacks_system
 
+import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.RecordMapper
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
+import org.jooq.impl.DSL
+import java.time.LocalDate
 
 
 @Component
@@ -24,7 +27,14 @@ class FeedbackDao(private val sql: DSLContext) {
     }
 
 
-    fun insertFeedback(companyId: Long, content: String, isAnonymous: Boolean, feedbackProviderId: Long?, department: Department): Long {
+    fun insertFeedback(
+        companyId: Long,
+        content: String,
+        isAnonymous: Boolean,
+        feedbackProviderId: Long?,
+        department: Department,
+        timeOfSubmitting: LocalDateTime = LocalDateTime.now()
+    ): Long {
         return sql.insertInto(feedbackTable)
             .set(feedbackTable.companyId, companyId)
             .set(feedbackTable.content, content)
@@ -32,10 +42,12 @@ class FeedbackDao(private val sql: DSLContext) {
             .set(feedbackTable.status, false)
             .set(feedbackTable.feedbackProviderId, feedbackProviderId)
             .set(feedbackTable.department, department.name)
-            .set(feedbackTable.timeOfSubmitting, LocalDateTime.now())
+            .set(feedbackTable.timeOfSubmitting, timeOfSubmitting)
             .returning(feedbackTable.id)
             .fetchOne()!![feedbackTable.id]
     }
+
+
 
     fun deleteFeedback(feedbackId: Long): Int {
         return sql.deleteFrom(feedbackTable)
@@ -53,5 +65,31 @@ class FeedbackDao(private val sql: DSLContext) {
         return sql.selectFrom(feedbackTable)
             .where(feedbackTable.companyId.eq(companyId))
             .fetch(feedbackMapper)
+    }
+
+
+    fun filterFeedbacks(filter: FeedbackFilter): List<FeedbackData> {
+        val conditions = listOfNotNull(
+            feedbackTable.companyId.eq(filter.companyId),
+            filter.isAnonymous?.let { feedbackTable.isAnonymous.eq(it) },
+            filter.status?.let { feedbackTable.status.eq(it) },
+            filter.feedbackProviderId?.let { feedbackTable.feedbackProviderId.eq(it) },
+            filter.department?.let { feedbackTable.department.eq(it.name) },
+            filter.timeOfSubmitting?.let { time ->
+                val dateToCompare = time.toLocalDate()
+                val dateField = DSL.field("DATE({0})", LocalDate::class.java, feedbackTable.timeOfSubmitting)
+                dateField.ge(dateToCompare)
+            }
+        )
+
+        val query = sql.selectFrom(feedbackTable)
+
+        if (conditions.isNotEmpty()) {
+            query.where(conditions.reduce(Condition::and))
+        }
+
+        query.orderBy(feedbackTable.timeOfSubmitting.desc())
+
+        return query.fetch(feedbackMapper)
     }
 }
