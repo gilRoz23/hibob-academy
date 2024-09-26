@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 
 @Component
-class FeedbackDao(private val sql: DSLContext) {
+class ResponseDao(private val sql: DSLContext) {
     private val feedbackTable = FeedbackTable.instance
 
     private val feedbackMapper = RecordMapper<org.jooq.Record, FeedbackData> { record ->
@@ -33,7 +33,7 @@ class FeedbackDao(private val sql: DSLContext) {
         isAnonymous: Boolean,
         feedbackProviderId: Long?,
         department: Department,
-        timeOfSubmitting: LocalDateTime = LocalDateTime.now()
+        timeOfSubmitting: LocalDateTime
     ): Long {
         return sql.insertInto(feedbackTable)
             .set(feedbackTable.companyId, companyId)
@@ -46,7 +46,6 @@ class FeedbackDao(private val sql: DSLContext) {
             .returning(feedbackTable.id)
             .fetchOne()!![feedbackTable.id]
     }
-
 
 
     fun deleteFeedback(feedbackId: Long): Int {
