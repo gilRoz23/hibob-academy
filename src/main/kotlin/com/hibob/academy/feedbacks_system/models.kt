@@ -74,3 +74,18 @@ enum class Role{
     HR,
     EMPLOYEE
 }
+
+
+data class ResponseData(
+    val id: Long,
+    val companyId: Long,
+    val feedbackId: Long,
+    val content: String,
+    val responserId: Long?,
+    val timeOfResponding: LocalDateTime
+)
+
+data class ResponseRequest(
+    val content: String,
+    val feedbackId: Long
+)
