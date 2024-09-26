@@ -307,4 +307,52 @@ class FeedbackServiceTest {
 
         verify(feedbackDao).filterFeedbacks(filter)
     }
+
+    @Test
+    fun `should throw exception when switching status for non-existing feedback`() {
+        val feedbackId = 1L
+        doReturn(0).whenever(feedbackDao).switchFeedbackStatus(feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            feedbackService.switchFeedbackStatus(feedbackId)
+        }
+
+        verify(feedbackDao).switchFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should successfully switch feedback status`() {
+        val feedbackId = 1L
+        doReturn(1).whenever(feedbackDao).switchFeedbackStatus(feedbackId)
+
+        assertDoesNotThrow {
+            feedbackService.switchFeedbackStatus(feedbackId)
+        }
+
+        verify(feedbackDao).switchFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should throw exception when getting status for non-existing feedback`() {
+        val feedbackId = 1L
+        doReturn(null).whenever(feedbackDao).getFeedbackStatus(feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            feedbackService.getFeedbackStatus(feedbackId)
+        }
+
+        verify(feedbackDao).getFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should return feedback status successfully`() {
+        val feedbackId = 1L
+        val status = true
+        doReturn(status).whenever(feedbackDao).getFeedbackStatus(feedbackId)
+
+        val result = feedbackService.getFeedbackStatus(feedbackId)
+
+        assertEquals(status, result)
+        verify(feedbackDao).getFeedbackStatus(feedbackId)
+    }
 }
