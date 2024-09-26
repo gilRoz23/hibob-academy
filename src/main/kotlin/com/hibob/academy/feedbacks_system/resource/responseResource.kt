@@ -1,11 +1,8 @@
 package com.hibob.academy.feedbacks_system.resource
 
 import PermissionService
-import com.hibob.academy.feedbacks_system.FeedbackRequest
 import com.hibob.academy.feedbacks_system.ResponseRequest
 import com.hibob.academy.feedbacks_system.Role
-import com.hibob.academy.feedbacks_system.service.FeedbackService
-import com.hibob.academy.feedbacks_system.UserFeedbackFilter
 import com.hibob.academy.feedbacks_system.service.ResponseService
 import jakarta.ws.rs.*
 import jakarta.ws.rs.container.ContainerRequestContext
@@ -24,54 +21,47 @@ class ResponseResource(
 
     @POST
     @Path("/respond")
-    fun submitFeedback(@Context requestContext: ContainerRequestContext, responseRequest: ResponseRequest): Response {
-        val permissionService = PermissionService()
-        val feedbackProvider: Long? = if (feedbackRequest.isAnonymous) {
-            null
-        } else {
-            permissionService.extractPropertyAsLong(requestContext, "employeeId")
-        }
-
-        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-            ?: return Response.status(Response.Status.BAD_REQUEST)
-                .entity("couldn't convert companyId").build()
-
-        feedbackService.insertFeedback(
-            companyId,
-            feedbackRequest.content,
-            feedbackRequest.isAnonymous,
-            feedbackProvider,
-            feedbackRequest.department
-        )
-
-        return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
-    }
-
-    @GET
-    @Path("/get-all-feedbacks")
-    fun getAllFeedbacks(@Context requestContext: ContainerRequestContext): Response {
+    fun respondFeedback(@Context requestContext: ContainerRequestContext, responseRequest: ResponseRequest): Response {
         val permissionService = PermissionService()
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
         val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-
+        val employeeId = permissionService.extractPropertyAsLong(requestContext, "employeeId")
         companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))
+            permissionService.validatePermission(role, listOf(Role.HR))
         }?.let {
-            return Response.ok(feedbackService.getAllCompanyFeedbacks(it)).build()
-        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+            try {
+                responseService.insertResponse(it, employeeId, responseRequest)
+                return Response.ok("Responded successfully").build()
+            }
+            catch (e: IllegalArgumentException){
+                return Response.status(Response.Status.FORBIDDEN).entity(e.message).build()
+            }
+        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
     }
 
     @GET
-    @Path("/filter-feedbacks")
-    fun filterFeedbacks(@Context requestContext: ContainerRequestContext, userFeedbackFilter: UserFeedbackFilter): Response {
+    @Path("/get-all-responses")
+    fun getAllCompanyResponses(@Context requestContext: ContainerRequestContext): Response {
         val permissionService = PermissionService()
         val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
         val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-
         companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR, Role.ADMIN))
+            permissionService.validatePermission(role, listOf(Role.HR))
         }?.let {
-            return Response.ok(feedbackService.filterFeedbacks(it, userFeedbackFilter)).build()
-        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
+            return Response.ok(responseService.getAllCompanyResponses(companyId)).build()
+        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
+    }
+
+    @GET
+    @Path("/get-all-feedback-responses/feedback-id/{feedbackId}")
+    fun getAllResponseByFeedbackId(@Context requestContext: ContainerRequestContext, @PathParam("feedbackId") feedbackId: Long): Response {
+        val permissionService = PermissionService()
+        val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
+        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
+        companyId?.takeIf {
+            permissionService.validatePermission(role, listOf(Role.HR))
+        }?.let {
+            return Response.ok(responseService.getResponseByFeedbackId(feedbackId)).build()
+        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
     }
 }
