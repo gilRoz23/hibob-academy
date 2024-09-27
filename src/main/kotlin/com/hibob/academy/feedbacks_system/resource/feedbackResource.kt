@@ -109,7 +109,7 @@ class FeedbackResource(
             catch (e: IllegalArgumentException) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
             }
-            catch (e: AccessDeniedException) {
+            catch (e: ForbiddenException) {
                 return Response.status(Response.Status.FORBIDDEN).entity(e.message).build()
             }
         } ?: return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build()
