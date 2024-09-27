@@ -50,13 +50,13 @@ class SessionEmployeeService(private val companyDao: CompanyDao, private val emp
 
     fun getEmployee(firstname: String, lastname: String, companyId: Long): EmployeeData {
         val employeeData = employeeDao.getEmployee(firstname, lastname, companyId)
-            ?: throw IllegalStateException("invalid firstname or lastname or company name.")
+            ?: throw IllegalStateException("invalid details.")
         return employeeData
     }
 
     fun getCompanyByName(companyName: String): CompanyData {
         val companyData = companyDao.getCompanyByName(companyName)
-            ?: throw IllegalStateException("invalid firstname or lastname or company name.")
+            ?: throw IllegalStateException("invalid details.")
         return companyData
     }
 }
