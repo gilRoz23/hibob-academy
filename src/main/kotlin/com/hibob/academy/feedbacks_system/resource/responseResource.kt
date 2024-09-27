@@ -48,7 +48,8 @@ class ResponseResource(
         companyId?.takeIf {
             permissionService.validatePermission(role, listOf(Role.HR))
         }?.let {
-            return Response.ok(responseService.getAllCompanyResponses(companyId)).build()
+//            return Response.ok(responseService.getAllCompanyResponses(companyId)).build()
+            return Response.status(Response.Status.CREATED).entity(responseService.getAllCompanyResponses(companyId)).build()
         } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
     }
 
