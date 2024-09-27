@@ -34,15 +34,20 @@ class FeedbackResource(
             ?: return Response.status(Response.Status.BAD_REQUEST)
                 .entity("couldn't convert companyId").build()
 
-        feedbackService.insertFeedback(
-            companyId,
-            feedbackRequest.content,
-            feedbackRequest.isAnonymous,
-            feedbackProvider,
-            feedbackRequest.department
-        )
+        try {
+            feedbackService.insertFeedback(
+                companyId,
+                feedbackRequest.content,
+                feedbackRequest.isAnonymous,
+                feedbackProvider,
+                feedbackRequest.department
+            )
 
-        return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
+            return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
+        }
+        catch (e: Exception) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
     }
 
     @GET
