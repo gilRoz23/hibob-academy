@@ -42,8 +42,6 @@ class AuthenticationFilter(
                 .body
 
             // Set the claims as properties in the request context
-            requestContext.setProperty("firstname", claims["firstname"].toString())
-            requestContext.setProperty("lastname", claims["lastname"].toString())
             requestContext.setProperty("companyId", claims["companyId"].toString())
             requestContext.setProperty("employeeId", claims["employeeId"].toString())
             requestContext.setProperty("role", claims["role"].toString())
