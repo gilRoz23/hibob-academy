@@ -37,8 +37,6 @@ class SessionEmployeeService(private val companyDao: CompanyDao, private val emp
 
         return Jwts.builder()
             .setHeaderParam("typ", "JWT")
-            .claim("firstname", jwtDet.firstname)
-            .claim("lastname", jwtDet.lastname)
             .claim("companyId", companyId)
             .claim("employeeId", employeeData.id)
             .claim("role", employeeData.role)
