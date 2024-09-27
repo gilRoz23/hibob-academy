@@ -100,14 +100,11 @@ class FeedbackResource(
     @Path("/check-status/feedback-id/{feedbackId}")
     fun getFeedbackStatus(@Context requestContext: ContainerRequestContext, @PathParam("feedbackId") feedbackId: Long): Response {
         val permissionService = PermissionService()
-        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
+        val employeeId = permissionService.extractPropertyAsLong(requestContext, "employeeId")
 
-        companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR))
-        }?.let {
+        employeeId?.let {
             try {
-                feedbackService.switchFeedbackStatus(feedbackId)
-                return Response.ok("Switched review status successfully").build()
+                return Response.ok(feedbackService.getFeedbackStatus(feedbackId, it)).build()
             }
             catch (e: IllegalArgumentException) {
                 return Response.status(Response.Status.FORBIDDEN).entity(e.message).build()
