@@ -2,6 +2,7 @@ package com.hibob.academy.feedbacks_system.service
 
 import com.hibob.academy.feedbacks_system.*
 import org.springframework.stereotype.Component
+import java.nio.file.AccessDeniedException
 
 @Component
 class FeedbackService(private val feedbackDao: FeedbackDao) {
@@ -69,7 +70,7 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
             ?: throw IllegalArgumentException("Feedback does not exist.")
 
         return if (statusData.feedbackProviderId != feedbackProviderId) {
-            throw IllegalArgumentException("Access denied.")
+            throw AccessDeniedException("Access denied.")
         } else {
             statusData.status
         }
