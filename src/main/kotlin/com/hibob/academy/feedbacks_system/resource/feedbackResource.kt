@@ -31,10 +31,7 @@ class FeedbackResource(
         }
 
         val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-            ?: return Response.status(Response.Status.BAD_REQUEST)
-                .entity("couldn't convert companyId").build()
-
-        try {
+            ?: return Response.status(Response.Status.BAD_REQUEST).build()
             feedbackService.insertFeedback(
                 companyId,
                 feedbackRequest.content,
@@ -44,10 +41,6 @@ class FeedbackResource(
             )
 
             return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
-        }
-        catch (e: Exception) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
-        }
     }
 
     @GET
