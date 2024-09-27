@@ -32,6 +32,7 @@ class FeedbackResource(
 
         val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
             ?: return Response.status(Response.Status.BAD_REQUEST).build()
+        try {
             feedbackService.insertFeedback(
                 companyId,
                 feedbackRequest.content,
@@ -41,6 +42,10 @@ class FeedbackResource(
             )
 
             return Response.status(Response.Status.CREATED).entity("Feedback submitted successfully").build()
+        }
+        catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
     }
 
     @GET
