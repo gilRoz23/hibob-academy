@@ -1,6 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
 import com.hibob.academy.feedbacks_system.*
+import jakarta.ws.rs.ForbiddenException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -352,7 +353,7 @@ class FeedbackServiceTest {
         doReturn(otherProviderId).whenever(statusData).feedbackProviderId
         doReturn(statusData).whenever(feedbackDao).getFeedbackStatus(feedbackId)
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<ForbiddenException> {
             feedbackService.getFeedbackStatus(feedbackId, feedbackProviderId)
         }
 
