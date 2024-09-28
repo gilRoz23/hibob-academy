@@ -1,8 +1,8 @@
 package com.hibob.academy.feedbacks_system.resource
 
-import PermissionService
 import com.hibob.academy.feedbacks_system.ResponseRequest
 import com.hibob.academy.feedbacks_system.Role
+import com.hibob.academy.feedbacks_system.service.PermissionService
 import com.hibob.academy.feedbacks_system.service.ResponseService
 import jakarta.ws.rs.*
 import jakarta.ws.rs.container.ContainerRequestContext
@@ -16,52 +16,36 @@ import org.springframework.stereotype.Controller
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class ResponseResource(
-    private val responseService: ResponseService
+    private val responseService: ResponseService,
+    private val permissionService: PermissionService
 ) {
 
     @POST
     @Path("/respond")
     fun respondFeedback(@Context requestContext: ContainerRequestContext, responseRequest: ResponseRequest): Response {
-        val permissionService = PermissionService()
-        val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
-        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-        val employeeId = permissionService.extractPropertyAsLong(requestContext, "employeeId")
-        companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR))
-        }?.let {
-            try {
-                responseService.insertResponse(it, employeeId, responseRequest)
-                return Response.status(Response.Status.CREATED).entity("Responded successfully").build()
+        return permissionService.handleWithPermission(requestContext, listOf(Role.HR)) { companyId ->
+            runCatching {
+                responseService.insertResponse(companyId, permissionService.extractPropertyAsLong(requestContext, "employeeId"), responseRequest)
+                Response.status(Response.Status.CREATED).entity("Responded successfully").build()
+            }.getOrElse { e ->
+                permissionService.handleException(e)
             }
-            catch (e: IllegalArgumentException){
-                return Response.status(Response.Status.FORBIDDEN).entity(e.message).build()
-            }
-        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
+        }
     }
 
     @GET
     @Path("/get-all-responses")
     fun getAllCompanyResponses(@Context requestContext: ContainerRequestContext): Response {
-        val permissionService = PermissionService()
-        val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
-        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-        companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR))
-        }?.let {
-            return Response.ok(responseService.getAllCompanyResponses(companyId)).build()
-        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
+        return permissionService.handleWithPermission(requestContext, listOf(Role.HR)) { companyId ->
+            Response.ok(responseService.getAllCompanyResponses(companyId)).build()
+        }
     }
 
     @GET
     @Path("/get-all-feedback-responses/feedback-id/{feedbackId}")
     fun getAllResponseByFeedbackId(@Context requestContext: ContainerRequestContext, @PathParam("feedbackId") feedbackId: Long): Response {
-        val permissionService = PermissionService()
-        val role = permissionService.extractPropertyAsString(requestContext, "role") ?: ""
-        val companyId = permissionService.extractPropertyAsLong(requestContext, "companyId")
-        companyId?.takeIf {
-            permissionService.validatePermission(role, listOf(Role.HR))
-        }?.let {
-            return Response.ok(responseService.getResponseByFeedbackId(feedbackId)).build()
-        } ?: return Response.status(Response.Status.FORBIDDEN).entity("Request denied").build()
+        return permissionService.handleWithPermission(requestContext, listOf(Role.HR)) { companyId ->
+            Response.ok(responseService.getResponseByFeedbackId(feedbackId)).build()
+        }
     }
 }
