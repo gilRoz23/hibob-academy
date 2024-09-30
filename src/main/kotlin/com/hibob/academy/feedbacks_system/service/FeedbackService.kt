@@ -1,12 +1,13 @@
 package com.hibob.academy.feedbacks_system.service
 
 import com.hibob.academy.feedbacks_system.*
+import jakarta.ws.rs.ForbiddenException
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
 
 @Component
 class FeedbackService(private val feedbackDao: FeedbackDao) {
-    private val inappropriateWords = listOf("hate", "stupid", "idiot",
+    private val inappropriateWords = listOf(
+        "hate", "stupid", "idiot",
         "moron", "crap", "suck", "dumb", "loser",
         "vile", "disgusting", "scum", "hate speech", "abusive",
         "fool", "jerk", "douche", "shut up", "twit",
@@ -15,9 +16,16 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
         "nigga", "trash", "scumbag", "foolish", "pendejo",
         "klutz", "freak", "loser", "chump", "simpleton",
         "asshole", "snot", "dumbass", "dickhead", "knob",
-        "putz", "waste", "moronic", "lame", "cringe", "fuck")
+        "putz", "waste", "moronic", "lame", "cringe", "fuck"
+    )
 
-    fun insertFeedback(companyId: Long, content: String, isAnonymous: Boolean, feedbackProviderId: Long?, department: Department) {
+    fun insertFeedback(
+        companyId: Long,
+        content: String,
+        isAnonymous: Boolean,
+        feedbackProviderId: Long?,
+        department: Department
+    ) {
         validateLength(content)
         validateContent(content)
         feedbackDao.insertFeedback(companyId, content, isAnonymous, feedbackProviderId, department)
@@ -30,7 +38,7 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
     }
 
     private fun validateContent(content: String) {
-        if(inappropriateWords.any { content.lowercase().contains(it.lowercase()) }) {
+        if (inappropriateWords.any { content.lowercase().contains(it.lowercase()) }) {
             throw IllegalArgumentException("feedback contains inappropriate language.")
         }
     }
@@ -40,12 +48,31 @@ class FeedbackService(private val feedbackDao: FeedbackDao) {
     }
 
     fun filterFeedbacks(companyId: Long, userFeedbackFilter: UserFeedbackFilter): List<FeedbackData> {
-        val filter = FeedbackFilter(companyId,
+        val filter = FeedbackFilter(
+            companyId,
             userFeedbackFilter.isAnonymous,
             userFeedbackFilter.status,
             userFeedbackFilter.feedbackProviderId,
             userFeedbackFilter.department,
-            userFeedbackFilter.timeOfSubmitting)
+            userFeedbackFilter.timeOfSubmitting
+        )
         return feedbackDao.filterFeedbacks(filter)
+    }
+
+    fun switchFeedbackStatus(feedbackId: Long) {
+        val updatedRows = feedbackDao.switchFeedbackStatus(feedbackId)
+        if (updatedRows == 0)
+            throw IllegalArgumentException("Feedback does not exist.")
+    }
+
+    fun getFeedbackStatus(feedbackId: Long, feedbackProviderId: Long): Boolean {
+        val statusData = feedbackDao.getFeedbackStatus(feedbackId)
+            ?: throw IllegalArgumentException("Feedback does not exist.")
+
+        return if (statusData.feedbackProviderId != feedbackProviderId) {
+            throw ForbiddenException("Access denied.")
+        } else {
+            statusData.status
+        }
     }
 }

@@ -1,8 +1,7 @@
 package com.hibob.academy.feedbacks_system.service
 
-import com.hibob.academy.feedbacks_system.Department
-import com.hibob.academy.feedbacks_system.FeedbackDao
-import com.hibob.academy.feedbacks_system.FeedbackData
+import com.hibob.academy.feedbacks_system.*
+import jakarta.ws.rs.ForbiddenException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -11,8 +10,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 import kotlin.random.Random
-import com.hibob.academy.feedbacks_system.FeedbackFilter
-import com.hibob.academy.feedbacks_system.UserFeedbackFilter
 
 class FeedbackServiceTest {
     private var feedbackDao: FeedbackDao = mock(FeedbackDao::class.java)
@@ -306,5 +303,76 @@ class FeedbackServiceTest {
         assertTrue(filteredFeedbacks.all { it.timeOfSubmitting.isEqual(timeOfSubmitting) })
 
         verify(feedbackDao).filterFeedbacks(filter)
+    }
+
+    @Test
+    fun `should throw exception when switching status for non-existing feedback`() {
+        val feedbackId = 1L
+        doReturn(0).whenever(feedbackDao).switchFeedbackStatus(feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            feedbackService.switchFeedbackStatus(feedbackId)
+        }
+
+        verify(feedbackDao).switchFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should successfully switch feedback status`() {
+        val feedbackId = 1L
+        doReturn(1).whenever(feedbackDao).switchFeedbackStatus(feedbackId)
+
+        assertDoesNotThrow {
+            feedbackService.switchFeedbackStatus(feedbackId)
+        }
+
+        verify(feedbackDao).switchFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should throw exception when feedback does not exist`() {
+        val feedbackId = 1L
+        val feedbackProviderId = 200L
+
+        doReturn(null).whenever(feedbackDao).getFeedbackStatus(feedbackId)
+
+        assertThrows<IllegalArgumentException> {
+            feedbackService.getFeedbackStatus(feedbackId, feedbackProviderId)
+        }
+
+        verify(feedbackDao).getFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should throw exception when access is denied for feedback provider`() {
+        val feedbackId = 1L
+        val feedbackProviderId = 200L
+        val otherProviderId = 201L
+
+        val statusData = mock(StatusData::class.java)
+        doReturn(otherProviderId).whenever(statusData).feedbackProviderId
+        doReturn(statusData).whenever(feedbackDao).getFeedbackStatus(feedbackId)
+
+        assertThrows<ForbiddenException> {
+            feedbackService.getFeedbackStatus(feedbackId, feedbackProviderId)
+        }
+
+        verify(feedbackDao).getFeedbackStatus(feedbackId)
+    }
+
+    @Test
+    fun `should return feedback status when access is granted`() {
+        val feedbackId = 1L
+        val feedbackProviderId = 200L
+        val statusData = mock(StatusData::class.java)
+
+        doReturn(feedbackProviderId).whenever(statusData).feedbackProviderId
+        doReturn(true).whenever(statusData).status
+        doReturn(statusData).whenever(feedbackDao).getFeedbackStatus(feedbackId)
+
+        val status = feedbackService.getFeedbackStatus(feedbackId, feedbackProviderId)
+
+        assertTrue(status)
+        verify(feedbackDao).getFeedbackStatus(feedbackId)
     }
 }
